@@ -1,69 +1,134 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+#  React + Tailwind CSS + Vite + TypeScript Template
 
-Currently, two official plugins are available:
+This branch provides a **React** starter template configured with **Tailwind CSS**, **Vite**, and **TypeScript**. Ideal for modern frontend development with fast builds and utility-first styling.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## 📁 Folder Structure
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+``` 
+├── public/  
+├── src/  
+├── .gitignore  
+├── README.md  
+├── eslint.config.js  
+├── index.html  
+├── package-lock.json  
+├── package.json  
+├── postcss.config.cjs  
+├── tailwind.config.js  
+├── tsconfig.json  
+├── tsconfig.app.json  
+├── tsconfig.node.json  
+└── vite.config.ts
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
+
+## 🧰 Tech Stack
+
+- ⚛️ React
+- ⚡ Vite
+- 🎨 Tailwind CSS v3
+- 🟦 TypeScript
+
+
+---
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository & Checkout the Tailwind Branch
+
+```bash
+https://github.com/dharshan-kumarj/React_CSS_Frameworks_Starter/tree/Tailwind
+cd React_CSS_Frameworks_Starter
+git checkout Tailwind
+
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+
+```
+
+### 3. Start the Dev Server
+
+```bash
+npm run dev
+
+```
+
+----------
+
+## 🧩 Tailwind CSS Configuration
+
+###  `tailwind.config.js`
 
 ```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}"
+  ],
+  theme: {
+    extend: {},
   },
-])
+  plugins: [],
+}
+
+```
+### `postcss.config.cjs`
+
+```js
+module.exports = {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+
+```
+
+###  `src/index.css`
+
+```css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+```
+
+----------
+
+## 🧪 Verifying Tailwind CSS
+
+To check if Tailwind is working:
+
+1.  Go to `src/App.tsx`
+    
+2.  Add a class like `bg-blue-600 text-white p-4 rounded`
+    
+3.  Run the app and see the changes
+    
+
+----------
+
+## 🏗️ Build for Production
+
+```bash
+npm run build
+
+```
+
+Then preview using:
+
+```bash
+npm run preview
+
 ```
