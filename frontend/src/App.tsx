@@ -2,9 +2,9 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Dashboard } from '@/pages/Dashboard';
-import { Workspace } from '@/pages/Workspace';
-import { Reports } from '@/pages/Reports';
-import { Agents } from '@/pages/Agents';
+import Workspace from '@/pages/Workspace';
+import Reports from '@/pages/Reports';
+import Agents from '@/pages/Agents';
 
 function App() {
   return (

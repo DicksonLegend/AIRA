@@ -15,6 +15,25 @@ export interface Agent {
   decisionsAnalyzed: number;
 }
 
+export interface DetailedAgentAnalysis {
+  id: string;
+  name: string;
+  icon: string;
+  iconColor: string;
+  costImpact?: string;
+  revenueImpact?: string;
+  roiEstimate?: string;
+  budgetRequired?: string;
+  riskScore?: string;
+  successProbability?: string;
+  riskFactors?: string[];
+  complianceScore?: string;
+  legalConsiderations?: string[];
+  marketOpportunity?: string;
+  marketTrends?: string[];
+  recommendation: string;
+}
+
 export interface Decision {
   id: string;
   title: string;
