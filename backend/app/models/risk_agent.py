@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class RiskAgent:
     def __init__(self):
-        self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+        self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # Use your pre-downloaded model
         self.model = None
         self.tokenizer = None
         self.device = "cpu"  # Force CPU for lightweight model
@@ -31,12 +31,15 @@ class RiskAgent:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model for CPU (no quantization, optimized for CPU inference)
+            # Load model for CPU with memory optimization
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                device_map="cpu",
-                dtype=torch.float32,  # Use dtype instead of torch_dtype
-                trust_remote_code=True
+                device_map={"": "cpu"},  # Force CPU device mapping
+                dtype=torch.float16,  # Use float16 for memory efficiency
+                trust_remote_code=True,
+                low_cpu_mem_usage=True,
+                offload_folder=None,  # Disable disk offloading
+                max_memory={"cpu": "2GB"}  # Limit CPU memory for TinyLlama
             )
             
             self.is_ready = True

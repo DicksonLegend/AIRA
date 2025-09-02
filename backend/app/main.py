@@ -13,7 +13,7 @@ from typing import Dict, Any, List, Optional
 import json
 from datetime import datetime
 
-from app.services.simple_crewai import FourPillarsCrewAI
+from app.services.four_pillars_crewai import FourPillarsCrewAI
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

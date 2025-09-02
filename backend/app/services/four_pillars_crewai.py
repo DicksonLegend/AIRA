@@ -1,6 +1,6 @@
 """
 🚀 CrewAI Four Pillars - Complete Framework Implementation
-Pure CrewAI solution replacing manual orchestration
+Pure CrewAI solution integrating with optimized GPU/CPU models
 """
 import asyncio
 import logging
@@ -11,6 +11,12 @@ import os
 
 from crewai import Agent, Task, Crew, Process
 from crewai.tools import tool
+
+# Import our optimized model agents
+from app.models.finance_agent import FinanceAgent
+from app.models.risk_agent import RiskAgent
+from app.models.compliance_agent import ComplianceAgent
+from app.models.market_agent import MarketAgent
 
 logger = logging.getLogger(__name__)
 
@@ -23,23 +29,38 @@ class FourPillarsCrewAI:
     """
     
     def __init__(self):
+        # Initialize our optimized model agents
+        self.finance_model = FinanceAgent()
+        self.risk_model = RiskAgent()
+        self.compliance_model = ComplianceAgent()
+        self.market_model = MarketAgent()
+        
         self.crew = None
         self.agents = {}
         self.is_initialized = False
         
         # Device allocation for optimal performance
         self.device_config = {
-            "finance": "gpu",      # Complex financial modeling on GPU
-            "risk": "cpu",         # Fast risk assessment on CPU
-            "compliance": "cpu",   # Legal analysis on CPU  
-            "market": "cpu"        # Market analysis on CPU
+            "finance": "cpu",      # CPU to avoid memory issues
+            "risk": "cpu",         # CPU optimized
+            "compliance": "gpu",   # GPU for legal BERT
+            "market": "gpu"        # GPU for Mistral-7B
         }
         
     async def initialize(self):
         """Initialize CrewAI system with Four Pillars agents"""
-        logger.info("🚀 Initializing CrewAI Four Pillars system...")
+        logger.info("🚀 Initializing CrewAI Four Pillars system with real models...")
         
         try:
+            # Initialize our model agents first
+            logger.info("📍 Loading CPU agents first...")
+            await self.finance_model.initialize()
+            await self.risk_model.initialize()
+            
+            logger.info("📍 Loading GPU agents...")
+            await self.compliance_model.initialize()
+            await self.market_model.initialize()
+            
             # Create specialized agents
             self._create_agents()
             
@@ -47,7 +68,7 @@ class FourPillarsCrewAI:
             self._setup_crew()
             
             self.is_initialized = True
-            logger.info("✅ CrewAI Four Pillars system ready!")
+            logger.info("✅ CrewAI Four Pillars system ready with real models!")
             
         except Exception as e:
             logger.error(f"❌ CrewAI initialization failed: {e}")
@@ -137,150 +158,120 @@ class FourPillarsCrewAI:
         return None  # CrewAI will use default LLM
     
     def _get_financial_analysis_tool(self):
-        """Create financial analysis tool"""
+        """Create financial analysis tool using real Finance Agent"""
         @tool("financial_analyzer")
         def analyze_financials(business_scenario: str) -> str:
-            """Analyze financial aspects of a business scenario"""
-            return f"""
-            FINANCIAL ANALYSIS REPORT
-            ========================
-            
-            Scenario: {business_scenario}
-            
-            💰 FUNDING REQUIREMENTS:
-            - Initial Capital: $250K - $500K
-            - Runway: 12-18 months
-            - Key Metrics: CAC, LTV, Monthly Burn Rate
-            
-            📊 REVENUE PROJECTIONS:
-            - Year 1: $100K - $300K
-            - Year 2: $500K - $1.2M  
-            - Year 3: $1.5M - $3M
-            
-            💡 RECOMMENDATIONS:
-            - Focus on unit economics optimization
-            - Implement robust financial tracking
-            - Plan for Series A in 12-15 months
-            
-            ⚠️ FINANCIAL RISKS:
-            - Cash flow management critical
-            - Market timing sensitivity
-            - Customer acquisition cost volatility
-            """
+            """Analyze financial aspects of a business scenario using GPU-optimized Finance Agent"""
+            try:
+                # Use our real Finance Agent for analysis
+                result = asyncio.create_task(self.finance_model.analyze(business_scenario))
+                analysis_result = asyncio.get_event_loop().run_until_complete(result)
+                
+                return f"""
+                FINANCIAL ANALYSIS REPORT (Phi-3.5-mini on {self.finance_model.device.upper()})
+                ================================================================
+                
+                {analysis_result.get('analysis', 'Analysis completed')}
+                
+                💰 FINANCIAL METRICS:
+                - Revenue Potential: {analysis_result.get('metrics', {}).get('revenue_potential', 'N/A')}
+                - Cost Efficiency: {analysis_result.get('metrics', {}).get('cost_efficiency', 'N/A')}
+                - ROI Projection: {analysis_result.get('metrics', {}).get('roi_projection', 'N/A')}
+                - Funding Requirement: {analysis_result.get('metrics', {}).get('funding_requirement', 'N/A')}
+                
+                🎯 CONFIDENCE: {analysis_result.get('confidence', 0.85)}
+                🖥️ PROCESSED ON: {analysis_result.get('device', 'Unknown').upper()}
+                """
+            except Exception as e:
+                return f"❌ Financial analysis failed: {str(e)}"
         
         return analyze_financials
     
     def _get_risk_analysis_tool(self):
-        """Create risk analysis tool"""
+        """Create risk analysis tool using real Risk Agent"""
         @tool("risk_analyzer")
         def analyze_risks(business_scenario: str) -> str:
-            """Analyze risks in a business scenario"""
-            return f"""
-            RISK ASSESSMENT REPORT
-            =====================
-            
-            Scenario: {business_scenario}
-            
-            🛡️ RISK CATEGORIES:
-            
-            HIGH RISKS:
-            - Market timing and adoption
-            - Competitive response
-            - Regulatory changes
-            
-            MEDIUM RISKS:
-            - Technology scalability
-            - Team execution capability
-            - Customer retention
-            
-            LOW RISKS:
-            - Infrastructure availability
-            - Basic operational risks
-            
-            🎯 MITIGATION STRATEGIES:
-            - Implement MVP validation
-            - Build strategic partnerships
-            - Develop regulatory monitoring
-            - Create contingency funding plans
-            
-            📈 RISK SCORE: 6.5/10 (Moderate-High)
-            """
+            """Analyze risks in a business scenario using CPU-optimized Risk Agent"""
+            try:
+                # Use our real Risk Agent for analysis
+                result = asyncio.create_task(self.risk_model.analyze(business_scenario))
+                analysis_result = asyncio.get_event_loop().run_until_complete(result)
+                
+                return f"""
+                RISK ASSESSMENT REPORT (TinyLlama on {self.risk_model.device.upper()})
+                ============================================================
+                
+                {analysis_result.get('analysis', 'Risk analysis completed')}
+                
+                🛡️ RISK CATEGORIES:
+                - Financial Risk: {analysis_result.get('risk_categories', {}).get('financial_risk', 'N/A')}
+                - Operational Risk: {analysis_result.get('risk_categories', {}).get('operational_risk', 'N/A')}
+                - Market Risk: {analysis_result.get('risk_categories', {}).get('market_risk', 'N/A')}
+                - Technical Risk: {analysis_result.get('risk_categories', {}).get('technical_risk', 'N/A')}
+                - Strategic Risk: {analysis_result.get('risk_categories', {}).get('strategic_risk', 'N/A')}
+                
+                📊 OVERALL RISK SCORE: {analysis_result.get('overall_risk_score', 'N/A')}
+                🎯 CONFIDENCE: {analysis_result.get('confidence', 0.88)}
+                🖥️ PROCESSED ON: {analysis_result.get('device', 'Unknown').upper()}
+                """
+            except Exception as e:
+                return f"❌ Risk analysis failed: {str(e)}"
         
         return analyze_risks
     
     def _get_compliance_analysis_tool(self):
-        """Create compliance analysis tool"""
-        @tool("compliance_analyzer") 
+        """Create compliance analysis tool using real Compliance Agent"""
+        @tool("compliance_analyzer")
         def analyze_compliance(business_scenario: str) -> str:
-            """Analyze compliance requirements for business scenario"""
-            return f"""
-            LEGAL & COMPLIANCE REPORT
-            ========================
-            
-            Scenario: {business_scenario}
-            
-            ⚖️ REGULATORY REQUIREMENTS:
-            
-            CRITICAL COMPLIANCE:
-            - Data protection (GDPR, CCPA)
-            - Business licensing
-            - Industry-specific regulations
-            
-            GOVERNANCE FRAMEWORK:
-            - Corporate structure setup
-            - Terms of service
-            - Privacy policy
-            - User consent mechanisms
-            
-            📋 ACTION ITEMS:
-            - Register business entity
-            - Implement data protection measures
-            - Develop compliance monitoring
-            - Legal review of all agreements
-            
-            ✅ COMPLIANCE SCORE: 7.5/10 (Good)
-            """
+            """Analyze compliance requirements using GPU-optimized Legal-BERT"""
+            try:
+                # Use our real Compliance Agent for analysis
+                result = asyncio.create_task(self.compliance_model.analyze(business_scenario))
+                analysis_result = asyncio.get_event_loop().run_until_complete(result)
+                
+                return f"""
+                LEGAL & COMPLIANCE REPORT (Legal-BERT on {self.compliance_model.device.upper()})
+                ==================================================================
+                
+                {analysis_result.get('analysis', 'Compliance analysis completed')}
+                
+                ⚖️ COMPLIANCE STATUS: {analysis_result.get('compliance_status', 'ASSESSED')}
+                📋 REGULATORY SCORE: {analysis_result.get('regulatory_score', 'N/A')}
+                🎯 CONFIDENCE: {analysis_result.get('confidence', 0.85)}
+                🖥️ PROCESSED ON: {analysis_result.get('device', 'Unknown').upper()}
+                """
+            except Exception as e:
+                return f"❌ Compliance analysis failed: {str(e)}"
         
         return analyze_compliance
     
     def _get_market_analysis_tool(self):
-        """Create market analysis tool"""
+        """Create market analysis tool using real Market Agent"""
         @tool("market_analyzer")
         def analyze_market(business_scenario: str) -> str:
-            """Analyze market dynamics and opportunities"""
-            return f"""
-            MARKET INTELLIGENCE REPORT
-            ==========================
-            
-            Scenario: {business_scenario}
-            
-            📈 MARKET DYNAMICS:
-            
-            MARKET SIZE:
-            - TAM (Total Addressable): $50B+
-            - SAM (Serviceable): $5B+
-            - SOM (Obtainable): $100M+
-            
-            COMPETITIVE LANDSCAPE:
-            - Direct competitors: 3-5 major players
-            - Indirect competitors: 10+ alternatives
-            - Market fragmentation: Moderate
-            
-            🎯 OPPORTUNITIES:
-            - Underserved market segments
-            - Technology differentiation
-            - Geographic expansion potential
-            
-            ⚡ MARKET TRENDS:
-            - Digital transformation acceleration
-            - Increased demand for automation
-            - Focus on sustainability and efficiency
-            
-            🏆 COMPETITIVE ADVANTAGE:
-            - AI-powered optimization
-            - Superior user experience
-            - Scalable technology platform
-            """
+            """Analyze market dynamics using GPU-optimized Mistral-7B"""
+            try:
+                # Use our real Market Agent for analysis
+                result = asyncio.create_task(self.market_model.analyze(business_scenario))
+                analysis_result = asyncio.get_event_loop().run_until_complete(result)
+                
+                return f"""
+                MARKET INTELLIGENCE REPORT (Mistral-7B on {self.market_model.device.upper()})
+                ================================================================
+                
+                {analysis_result.get('analysis', 'Market analysis completed')}
+                
+                📈 MARKET METRICS:
+                - Market Size: {analysis_result.get('market_metrics', {}).get('market_size_potential', 'N/A')}
+                - Competitive Intensity: {analysis_result.get('market_metrics', {}).get('competitive_intensity', 'N/A')}
+                - Growth Opportunity: {analysis_result.get('market_metrics', {}).get('growth_opportunity', 'N/A')}
+                - Market Score: {analysis_result.get('overall_market_score', 'N/A')}
+                
+                🎯 CONFIDENCE: {analysis_result.get('confidence', 0.87)}
+                🖥️ PROCESSED ON: {analysis_result.get('device', 'Unknown').upper()}
+                """
+            except Exception as e:
+                return f"❌ Market analysis failed: {str(e)}"
         
         return analyze_market
     

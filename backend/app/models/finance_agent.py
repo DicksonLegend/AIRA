@@ -12,10 +12,10 @@ logger = logging.getLogger(__name__)
 
 class FinanceAgent:
     def __init__(self):
-        self.model_name = "microsoft/phi-3.5-mini-instruct"
+        self.model_name = "microsoft/phi-3.5-mini-instruct"  # Use your pre-downloaded model
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Force GPU allocation
+        self.device = "cpu"  # Force CPU to avoid GPU memory issues
         self.is_ready = False
         
         # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - GPU optimized
@@ -32,25 +32,39 @@ class FinanceAgent:
     async def initialize(self):
         """Initialize the Finance Agent with RTX 4050 optimization"""
         try:
-            logger.info(f"💰 Initializing Finance Agent with {self.model_name} on GPU")
+            logger.info(f"💰 Initializing Finance Agent with {self.model_name} on {self.device.upper()}")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with 4-bit quantization for RTX 4050 GPU
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                quantization_config=self.quant_config if self.device == "cuda" else None,
-                device_map="auto" if self.device == "cuda" else "cpu",
-                dtype=torch.float16 if self.device == "cuda" else torch.float32,
-                trust_remote_code=True,
-                max_memory={0: "3GB"} if self.device == "cuda" else None
-            )
+            # Load model with optimized settings for CPU/GPU
+            if self.device == "cpu":
+                # CPU configuration with strict memory limits
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float16,  # Use float16 for memory efficiency
+                    device_map={"": "cpu"},  # Force CPU device mapping
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True,  # Optimize CPU memory usage
+                    offload_folder=None,  # Disable disk offloading
+                    max_memory={"cpu": "6GB"}  # Reduced memory limit
+                )
+            else:
+                # GPU configuration with quantization
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=self.quant_config,
+                    device_map={"": "cuda:0"},  # Force GPU device mapping
+                    dtype=torch.float16,
+                    trust_remote_code=True,
+                    max_memory={"0": "3GB"},  # Strict GPU memory limit
+                    offload_folder=None  # Disable disk offloading
+                )
             
             self.is_ready = True
-            logger.info(f"✅ Finance Agent ready on {self.device} - Phi-3.5-mini (~2.1GB VRAM)")
+            logger.info(f"✅ Finance Agent ready on {self.device.upper()} - Phi-3.5-mini")
             
         except Exception as e:
             logger.error(f"❌ Finance Agent initialization failed: {e}")

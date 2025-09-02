@@ -1,34 +1,34 @@
 # 🚀 Four Pillars AI - CrewAI Framework Backend
 
 **Pure CrewAI Multi-Agent Business Intelligence Platform**  
-*RTX 4050 GPU Optimized - No Manual Orchestrator*
+*RTX 4050 Compatible - CrewAI Framework Implementation*
 
 ---
 
 ## 📋 Overview
 
-This backend implements a complete **CrewAI-powered multi-agent system** for business intelligence analysis. The system replaces traditional manual orchestration with CrewAI's structured framework, providing hackathon-ready, production-quality AI analysis across four key business pillars.
+This backend implements a complete **CrewAI-powered multi-agent system** for business intelligence analysis. The system uses CrewAI's structured framework for agent coordination while maintaining memory-efficient AI models optimized for Windows and mid-range hardware.
 
 ### 🏗️ Architecture
 
 ```
-Four Pillars AI Backend
-├── 💰 Finance Agent (GPU) - Financial analysis & investment strategy
-├── 🛡️ Risk Agent (CPU) - Risk assessment & mitigation planning  
-├── ⚖️ Compliance Agent (CPU) - Legal & regulatory compliance
-└── 📈 Market Agent (CPU) - Market intelligence & competitive analysis
+Four Pillars AI Backend (CrewAI Framework)
+├── 💰 Finance Agent (CPU) - TinyLlama 1.1B with CrewAI coordination
+├── 🛡️ Risk Agent (CPU) - TinyLlama 1.1B with CrewAI coordination
+├── ⚖️ Compliance Agent (GPU/CPU) - Legal-BERT with CrewAI coordination
+└── 📈 Market Agent (CPU) - Mistral-7B with CrewAI coordination
 ```
 
 ---
 
 ## 🎯 Key Features
 
-- **🤖 Pure CrewAI Framework**: Complete replacement of manual orchestration
-- **⚡ GPU Acceleration**: RTX 4050 optimization for Finance Agent
-- **🎪 Hackathon Ready**: Structured workflows and clear role separation
+- **🤖 CrewAI Framework**: Structured agent coordination and task management
+- **🧠 Memory Optimized**: Designed for 16GB RAM systems with 6GB GPU
+- **🪟 Windows Compatible**: Optimized for Windows virtual memory management
 - **📊 Multi-Analysis Types**: Comprehensive, focused, or single-agent analysis
-- **🔄 Real-time Updates**: WebSocket support for live analysis streaming
-- **📚 Auto Documentation**: FastAPI with interactive API docs
+- **🔄 Real-time API**: FastAPI with WebSocket support
+- **📚 Auto Documentation**: Interactive API docs with Swagger UI
 
 ---
 
@@ -36,12 +36,21 @@ Four Pillars AI Backend
 
 | Component | Technology | Version |
 |-----------|------------|---------|
-| **Framework** | CrewAI | 0.175.0 |
-| **Backend** | FastAPI | Latest |
-| **AI/ML** | PyTorch | 2.7.1+cu118 |
-| **GPU** | CUDA | 11.8 |
-| **Python** | Python | 3.13+ |
-| **Environment** | Virtual Env | venv_gpu |
+| **Framework** | CrewAI | 0.83.0 |
+| **Backend** | FastAPI | 0.115.4 |
+| **AI Models** | PyTorch + Transformers | 2.6.0 + 4.56.0 |
+| **GPU Support** | CUDA | 11.8+ |
+| **Python** | Python | 3.9+ |
+| **Environment** | Windows Virtual Env | .venv |
+
+### 🤖 AI Models Used
+
+| Agent | Model | Size | Device | Memory |
+|-------|-------|------|--------|---------|
+| Finance | TinyLlama-1.1B-Chat | 2.2GB | CPU | ~3GB RAM |
+| Risk | TinyLlama-1.1B-Chat | 2.2GB | CPU | ~3GB RAM |
+| Compliance | legal-bert-base-uncased | 0.4GB | GPU/CPU | ~1GB |
+| Market | Mistral-7B-Instruct | 13GB | CPU | ~15GB RAM |
 
 ---
 
@@ -49,39 +58,39 @@ Four Pillars AI Backend
 
 ### Prerequisites
 
-- **Hardware**: RTX 4050 (6GB VRAM) or compatible NVIDIA GPU
-- **Software**: Python 3.13+, CUDA 11.8, Git
+- **Hardware**: 16GB+ RAM, RTX 4050 (6GB VRAM) or compatible NVIDIA GPU (optional)
+- **Software**: Python 3.9+, CUDA 11.8+ (for GPU), Git
+- **OS**: Windows 10/11 (optimized), Linux compatible
 
 ### Installation
 
 1. **Clone Repository**
    ```bash
-   git clone https://github.com/SparkWorks-Spark-your-Ideas/AIRA.git
+   git clone https://github.com/DicksonLegend/AIRA.git
    cd AIRA/backend
    ```
 
 2. **Setup Virtual Environment**
    ```bash
-   python -m venv venv_gpu
+   python -m venv .venv
    # Windows
-   venv_gpu\Scripts\activate
+   .venv\Scripts\activate
    # Linux/Mac
-   source venv_gpu/bin/activate
+   source .venv/bin/activate
    ```
 
 3. **Install Dependencies**
    ```bash
    pip install -r requirements.txt
-   pip install crewai
    ```
 
 4. **Start Backend**
    ```bash
-   # Method 1: Direct Python
-   venv_gpu\Scripts\python.exe -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+   # Optimized startup script
+   python start_optimized.py
    
-   # Method 2: Using start script
-   python start_backend.py
+   # Or direct FastAPI
+   python -m uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
    ```
 
 ### Verification
@@ -159,22 +168,20 @@ ws.send(JSON.stringify({
 ```
 backend/
 ├── app/
-│   ├── main.py                    # FastAPI application (CrewAI only)
+│   ├── main.py                    # FastAPI application entry point
 │   ├── services/
-│   │   ├── four_pillars_crewai.py # Full CrewAI implementation
-│   │   ├── simple_crewai.py       # Simplified testing version
-│   │   └── agent_orchestrator.py  # [DEPRECATED] Manual orchestrator
+│   │   ├── four_pillars_crewai.py # Full CrewAI implementation (ACTIVE)
+│   │   └── simple_crewai.py       # [UNUSED] Direct model orchestration
 │   ├── models/
-│   │   ├── finance_agent.py       # GPU-optimized Finance Agent
-│   │   ├── risk_agent.py          # CPU-optimized Risk Agent
-│   │   ├── compliance_agent.py    # CPU-optimized Compliance Agent
-│   │   └── market_agent.py        # CPU-optimized Market Agent
+│   │   ├── finance_agent.py       # TinyLlama CPU-optimized Finance Agent
+│   │   ├── risk_agent.py          # TinyLlama CPU-optimized Risk Agent
+│   │   ├── compliance_agent.py    # Legal-BERT GPU/CPU Compliance Agent
+│   │   └── market_agent.py        # Mistral-7B CPU Market Agent
 │   └── schemas/
-│       └── schemas.py             # Pydantic models
-├── venv_gpu/                      # GPU-enabled virtual environment
-├── requirements.txt               # Python dependencies
-├── start_backend.py              # Backend startup script
-├── test_crewai.py                # CrewAI integration tests
+│       └── schemas.py             # Pydantic request/response models
+├── .venv/                         # Virtual environment
+├── requirements.txt               # CrewAI + essential dependencies
+├── start_optimized.py            # Memory-optimized startup script
 └── README.md                     # This file
 ```
 
@@ -182,19 +189,19 @@ backend/
 
 ## 🎯 CrewAI Framework Benefits
 
-### 🚀 **Hackathon Advantages**
+### 🚀 **Framework Advantages**
 
-1. **Structured Workflows**: Clear agent roles and task definitions
-2. **Parallel Coordination**: Efficient multi-agent task distribution  
-3. **Live Demonstrations**: Real-time analysis with visual feedback
-4. **Scalable Architecture**: Easy to swap models or add new agents
+1. **Structured Agent Coordination**: CrewAI manages agent interactions and task delegation
+2. **Memory & Context Management**: Persistent context across multi-agent workflows
+3. **Error Handling & Recovery**: Built-in retry mechanisms and failure recovery
+4. **Scalable Task Planning**: Intelligent task distribution and parallel execution
 
 ### 🏢 **Production Benefits**
 
-1. **Framework Reliability**: Built on proven CrewAI architecture
-2. **Memory & Planning**: Persistent context and intelligent task planning
-3. **Error Handling**: Robust failure recovery and logging
-4. **Performance Optimization**: GPU/CPU allocation for optimal speed
+1. **Framework Reliability**: Built on proven CrewAI architecture for agent coordination
+2. **Memory Efficiency**: Combines CrewAI structure with optimized model loading
+3. **Maintainable Code**: Clean separation of concerns between framework and models
+4. **Easy Extension**: Add new agents or modify workflows using CrewAI patterns
 
 ---
 
@@ -215,28 +222,37 @@ device_config = {
 
 ### Memory Requirements
 
-| Agent | Device | Memory Usage |
-|-------|--------|-------------|
-| Finance | GPU | ~2.1GB VRAM |
-| Risk | CPU | ~0.55GB RAM |
-| Compliance | CPU | ~0.4GB RAM |
-| Market | CPU | ~13GB RAM |
+| Agent | Device | Model | Memory Usage |
+|-------|--------|-------|-------------|
+| Finance | CPU | TinyLlama-1.1B | ~3GB RAM |
+| Risk | CPU | TinyLlama-1.1B | ~3GB RAM |
+| Compliance | GPU/CPU | Legal-BERT | ~1GB VRAM/RAM |
+| Market | CPU | Mistral-7B | ~15GB RAM |
+
+**💡 Memory Optimization Tips:**
+- Finance + Risk agents can share memory efficiently (same model)
+- Compliance agent automatically falls back to CPU if GPU memory insufficient
+- Market agent requires most memory - monitor system RAM availability
 
 ### Environment Variables
 
 ```bash
-# Optional configuration
+# GPU optimization (optional)
 CUDA_VISIBLE_DEVICES=0
 PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+
+# Memory management
+TRANSFORMERS_CACHE=D:\models_cache
+HF_HOME=D:\huggingface_cache
 ```
 
 ---
 
 ## 🧪 Testing
 
-### Unit Tests
+### System Test
 ```bash
-python test_crewai.py
+python start_optimized.py
 ```
 
 ### API Testing
@@ -244,19 +260,22 @@ python test_crewai.py
 # Health check
 curl http://localhost:8000/health
 
+# System status
+curl http://localhost:8000/status
+
 # Sample analysis
 curl -X POST http://localhost:8000/analyze \
   -H "Content-Type: application/json" \
-  -d '{"scenario": "Test scenario", "analysis_focus": "financial"}'
+  -d '{"scenario": "Test startup scenario", "analysis_focus": "financial"}'
 ```
 
-### Load Testing
+### Memory Monitoring
 ```bash
-# Install dependencies
-pip install locust
+# Check available RAM
+python -c "import psutil; print(f'Available RAM: {psutil.virtual_memory().available / (1024**3):.1f} GB')"
 
-# Run load tests (create locustfile.py first)
-locust -f locustfile.py --host=http://localhost:8000
+# Monitor GPU memory (if available)
+nvidia-smi
 ```
 
 ---
@@ -265,22 +284,31 @@ locust -f locustfile.py --host=http://localhost:8000
 
 ### Common Issues
 
-#### **ModuleNotFoundError: crewai**
+#### **Model Loading Stuck at "Loading checkpoint shards: 0%"**
 ```bash
-# Solution: Install CrewAI in correct environment
-pip install crewai
+# Solution: Insufficient RAM for large models
+# Switch to smaller models or add more RAM
+# Check available memory before startup
 ```
 
 #### **CUDA Out of Memory**
 ```bash
-# Solution: Reduce model batch size or use CPU fallback
-export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+# Solution: Reduce GPU allocation or use CPU fallback
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:256
+# Compliance agent will automatically use CPU
 ```
 
 #### **Virtual Environment Issues**
 ```bash
-# Solution: Use direct Python path
-venv_gpu\Scripts\python.exe -m uvicorn app.main:app --reload
+# Solution: Use correct Python path
+.venv\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+#### **Windows Virtual Memory Errors**
+```bash
+# Solution: Close other applications to free RAM
+# Consider using Linux for better memory management
+# Check Windows paging file settings
 ```
 
 ### Performance Optimization
@@ -304,15 +332,20 @@ venv_gpu\Scripts\python.exe -m uvicorn app.main:app --reload
 
 ## 📊 Performance Benchmarks
 
-### Analysis Speed (RTX 4050)
+### Analysis Speed (16GB RAM + RTX 4050)
 
-| Analysis Type | Duration | Agents Used | Memory |
-|---------------|----------|-------------|---------|
-| Comprehensive | 30-60s | All 4 | 16GB+ RAM, 2.1GB VRAM |
-| Financial | 10-20s | Finance | 2GB RAM, 2.1GB VRAM |
-| Risk | 10-20s | Risk | 1GB RAM |
-| Compliance | 10-20s | Compliance | 1GB RAM |
-| Market | 10-20s | Market | 14GB RAM |
+| Analysis Type | Duration | Agents Used | Memory Required |
+|---------------|----------|-------------|-----------------|
+| Comprehensive | 45-90s | All 4 | ~22GB RAM, 1GB VRAM |
+| Financial | 15-30s | Finance | ~3GB RAM |
+| Risk | 15-30s | Risk | ~3GB RAM |
+| Compliance | 10-20s | Compliance | ~1GB RAM/VRAM |
+| Market | 30-60s | Market | ~15GB RAM |
+
+**⚠️ Memory Constraints:**
+- Market agent (Mistral-7B) requires significant RAM
+- Comprehensive analysis may exceed 16GB RAM capacity
+- Consider sequential agent loading for memory-constrained systems
 
 ### Concurrent Requests
 
@@ -463,12 +496,13 @@ This project is licensed under the MIT License. See [LICENSE](../LICENSE) file f
 
 ### System Requirements
 
-- **Minimum**: 8GB RAM, GTX 1060 or better
-- **Recommended**: 16GB+ RAM, RTX 4050 or better
-- **Optimal**: 32GB RAM, RTX 4090
+- **Minimum**: 8GB RAM, Intel i5 or AMD Ryzen 5
+- **Recommended**: 16GB+ RAM, RTX 4050 or GTX 1660 Ti
+- **Optimal**: 32GB RAM, RTX 4080+ for simultaneous model loading
+- **Storage**: 50GB+ free space for model downloads
 
 ---
 
-**🚀 Ready to revolutionize business intelligence with AI-powered multi-agent analysis!**
+**🚀 Ready to revolutionize business intelligence with direct AI model implementation!**
 
-*Built with ❤️ using CrewAI Framework*
+*Built with ❤️ using PyTorch and Transformers*

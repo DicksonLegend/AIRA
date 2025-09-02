@@ -31,13 +31,15 @@ class MarketAgent:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load Mistral-7B on CPU without quantization (simpler approach)
+            # Load Mistral-7B on CPU with strict memory limits
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                device_map="cpu",
-                dtype=torch.float32,
+                device_map={"": "cpu"},  # Force CPU device mapping
+                dtype=torch.float16,  # Use float16 for memory efficiency
                 trust_remote_code=True,
-                low_cpu_mem_usage=True
+                low_cpu_mem_usage=True,
+                offload_folder=None,  # Disable disk offloading
+                max_memory={"cpu": "8GB"}  # Limit CPU memory for Mistral
             )
             
             self.is_ready = True

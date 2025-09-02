@@ -15,7 +15,7 @@ class ComplianceAgent:
         self.model_name = "nlpaueb/legal-bert-base-uncased"
         self.model = None
         self.tokenizer = None
-        self.device = "cpu"  # Force CPU for lightweight BERT model
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU for small model
         self.is_ready = False
         
     async def initialize(self):
@@ -26,17 +26,32 @@ class ComplianceAgent:
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             
-            # Load Legal-BERT model optimized for CPU compliance analysis
-            self.model = AutoModel.from_pretrained(
-                self.model_name,
-                dtype=torch.float32,  # Use dtype instead of torch_dtype for CPU
-                device_map="cpu",
-                use_safetensors=True,
-                trust_remote_code=True
-            )
-            
-            self.is_ready = True
-            logger.info(f"✅ Compliance Agent ready on CPU - Legal-BERT (~0.4GB RAM)")
+            # Load Legal-BERT model with GPU/CPU optimization
+            if self.device == "cuda":
+                # GPU configuration - small BERT model with memory limits
+                self.model = AutoModel.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float16,
+                    device_map={"": "cuda:0"},  # Force GPU device mapping
+                    use_safetensors=True,
+                    trust_remote_code=True,
+                    max_memory={"0": "1GB"},  # Limit GPU memory for BERT
+                    offload_folder=None  # Disable disk offloading
+                )
+                logger.info(f"✅ Compliance Agent ready on {self.device.upper()} - Legal-BERT (~0.4GB VRAM)")
+            else:
+                # CPU configuration with memory limits
+                self.model = AutoModel.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float16,
+                    device_map={"": "cpu"},  # Force CPU device mapping
+                    use_safetensors=True,
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True,
+                    max_memory={"cpu": "1GB"},  # Limit CPU memory for BERT
+                    offload_folder=None  # Disable disk offloading
+                )
+                logger.info(f"✅ Compliance Agent ready on {self.device.upper()} - Legal-BERT (~0.4GB RAM)")
             
         except Exception as e:
             logger.error(f"❌ Compliance Agent initialization failed: {e}")

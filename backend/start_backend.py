@@ -33,13 +33,13 @@ def print_startup_banner():
     ║                Multi-Agent Business Intelligence             ║
     ║                Smart GPU/CPU Allocation - RTX 4050          ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct  [GPU] ║
+    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct  [CPU] ║
     ║ 🛡️  Risk Agent:      TinyLlama/TinyLlama-1.1B-Chat    [CPU] ║
-    ║ ⚖️  Compliance Agent: nlpaueb/legal-bert-base-uncased [CPU] ║
+    ║ ⚖️  Compliance Agent: nlpaueb/legal-bert-base-uncased [GPU] ║
     ║ 📈 Market Agent:     mistralai/Mistral-7B-Instruct    [CPU] ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ GPU Memory: Finance(2.1GB) = ~2.1GB VRAM                   ║
-    ║ CPU Memory: Risk(0.55GB) + Compliance(0.4GB) + Market(13GB)║
+    ║ CPU Memory: Finance(7GB) + Risk(2GB) + Market(13GB)        ║
+    ║ GPU Memory: Compliance(0.4GB) = ~0.4GB VRAM                ║
     ║ Backend: FastAPI + WebSocket + Async Processing             ║
     ╚══════════════════════════════════════════════════════════════╝
     """
