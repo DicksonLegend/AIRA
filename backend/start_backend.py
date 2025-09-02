@@ -31,16 +31,16 @@ def print_startup_banner():
     ╔══════════════════════════════════════════════════════════════╗
     ║                    🚀 FOUR PILLARS AI                       ║
     ║                Multi-Agent Business Intelligence             ║
-    ║                  RTX 4050 GPU Optimized                     ║
+    ║                Smart GPU/CPU Allocation - RTX 4050          ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct        ║
-    ║ 🛡️  Risk Agent:      TinyLlama/TinyLlama-1.1B-Chat-v1.0     ║
-    ║ ⚖️  Compliance Agent: nlpaueb/legal-bert-base-uncased       ║
-    ║ 📈 Market Agent:     mistralai/Mistral-7B-Instruct-v0.3     ║
+    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct  [GPU] ║
+    ║ 🛡️  Risk Agent:      TinyLlama/TinyLlama-1.1B-Chat    [CPU] ║
+    ║ ⚖️  Compliance Agent: nlpaueb/legal-bert-base-uncased [CPU] ║
+    ║ 📈 Market Agent:     mistralai/Mistral-7B-Instruct    [CPU] ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ GPU Memory Usage: ~7-9GB total (sequential loading)         ║
+    ║ GPU Memory: Finance(2.1GB) = ~2.1GB VRAM                   ║
+    ║ CPU Memory: Risk(0.55GB) + Compliance(0.4GB) + Market(13GB)║
     ║ Backend: FastAPI + WebSocket + Async Processing             ║
-    ║ Models: Hugging Face with 4-bit Quantization                ║
     ╚══════════════════════════════════════════════════════════════╝
     """
     print(banner)

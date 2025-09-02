@@ -15,39 +15,33 @@ class MarketAgent:
         self.model_name = "mistralai/Mistral-7B-Instruct-v0.3"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Run on CPU to avoid GPU memory issues
         self.is_ready = False
         
-        # Configure 4-bit quantization for RTX 4050 (6GB VRAM)
-        self.quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4"
-        )
+        # No quantization for CPU - keep it simple
+        self.quant_config = None
         
     async def initialize(self):
         """Initialize the Market Agent with RTX 4050 optimization"""
         try:
-            logger.info(f"📈 Initializing Market Agent with {self.model_name}")
+            logger.info(f"📈 Initializing Market Agent with {self.model_name} on CPU")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load Mistral-7B model with 4-bit quantization for RTX 4050
+            # Load Mistral-7B on CPU without quantization (simpler approach)
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                quantization_config=self.quant_config,
-                device_map="auto",
-                dtype=torch.float16,
-                max_memory={0: "4GB"},  # Reduced from 5GB to leave room for other processes
+                device_map="cpu",
+                dtype=torch.float32,
+                trust_remote_code=True,
                 low_cpu_mem_usage=True
             )
             
             self.is_ready = True
-            logger.info(f"✅ Market Agent ready on {self.device} - Mistral-7B (~4-6GB VRAM)")
+            logger.info(f"✅ Market Agent ready on CPU - Mistral-7B (~13GB RAM)")
             
         except Exception as e:
             logger.error(f"❌ Market Agent initialization failed: {e}")
@@ -75,12 +69,11 @@ class MarketAgent:
             
             Market Assessment:"""
             
-            # Tokenize input
+            # Tokenize input (hybrid CPU/GPU will handle device placement automatically)
             inputs = self.tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
-            if self.device == "cuda":
-                inputs = inputs.to(self.device)
+            # No manual device placement needed - auto device mapping handles this
             
-            # Generate analysis
+            # Generate analysis with hybrid CPU/GPU inference
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs,

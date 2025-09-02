@@ -10,6 +10,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Decision } from '@/types';
 
+<<<<<<< HEAD
 const priorityStyles = {
   high: 'bg-red-400/20 text-red-600 border-red-400/30 hover:bg-red-400/30 transition-colors',
   medium: 'bg-blue-400/20 text-blue-600 border-blue-400/30 hover:bg-blue-400/30 transition-colors',
@@ -22,10 +23,13 @@ const statusStyles = {
   pending: 'bg-yellow-400/20 text-yellow-600 border-yellow-400/30 hover:bg-yellow-400/30 transition-colors',
 };
 
+=======
+>>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 interface DecisionTableProps {
   decisions: Decision[];
 }
 
+<<<<<<< HEAD
 export function DecisionTable({ decisions }: DecisionTableProps) {
   return (
     <div className="glass-card p-4 rounded-xl">
@@ -69,5 +73,53 @@ export function DecisionTable({ decisions }: DecisionTableProps) {
         </TableBody>
       </Table>
     </div>
+=======
+const priorityColors = {
+  high: 'bg-red-100 text-red-800',
+  medium: 'bg-yellow-100 text-yellow-800',
+  low: 'bg-green-100 text-green-800'
+};
+
+const statusColors = {
+  active: 'bg-blue-100 text-blue-800',
+  completed: 'bg-green-100 text-green-800',
+  pending: 'bg-gray-100 text-gray-800'
+};
+
+export function DecisionTable({ decisions }: DecisionTableProps) {
+  return (
+    <Table>
+      <TableHeader>
+        <TableRow>
+          <TableHead>Decision</TableHead>
+          <TableHead>Priority</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Confidence</TableHead>
+          <TableHead>Created</TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {decisions.map((decision) => (
+          <TableRow key={decision.id} className="hover:bg-gray-50">
+            <TableCell className="font-medium">{decision.title}</TableCell>
+            <TableCell>
+              <Badge className={priorityColors[decision.priority]}>
+                {decision.priority}
+              </Badge>
+            </TableCell>
+            <TableCell>
+              <Badge className={statusColors[decision.status]}>
+                {decision.status}
+              </Badge>
+            </TableCell>
+            <TableCell>{decision.confidence}%</TableCell>
+            <TableCell>
+              {new Date(decision.createdAt).toLocaleDateString()}
+            </TableCell>
+          </TableRow>
+        ))}
+      </TableBody>
+    </Table>
+>>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   );
 }
