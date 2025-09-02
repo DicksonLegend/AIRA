@@ -42,7 +42,8 @@ class MarketAgent:
                 quantization_config=self.quant_config,
                 device_map="auto",
                 dtype=torch.float16,
-                max_memory={0: "5GB"} if self.device == "cuda" else None
+                max_memory={0: "4GB"},  # Reduced from 5GB to leave room for other processes
+                low_cpu_mem_usage=True
             )
             
             self.is_ready = True

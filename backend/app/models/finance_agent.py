@@ -15,7 +15,7 @@ class FinanceAgent:
         self.model_name = "microsoft/phi-3.5-mini-instruct"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Force CPU to save GPU memory for Mistral
         self.is_ready = False
         
         # Configure 4-bit quantization for RTX 4050 (6GB VRAM)
@@ -36,15 +36,25 @@ class FinanceAgent:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with 4-bit quantization for RTX 4050
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                quantization_config=self.quant_config,
-                device_map="auto",
-                dtype=torch.float16,
-                trust_remote_code=True,
-                max_memory={0: "5GB"} if self.device == "cuda" else None
-            )
+            # Load model - CPU only to save GPU memory for Mistral
+            if self.device == "cpu":
+                # CPU configuration - no quantization needed
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float32,
+                    device_map="cpu",
+                    trust_remote_code=True
+                )
+            else:
+                # GPU configuration with 4-bit quantization
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=self.quant_config,
+                    device_map="auto",
+                    dtype=torch.float16,
+                    trust_remote_code=True,
+                    max_memory={0: "5GB"}
+                )
             
             self.is_ready = True
             logger.info(f"✅ Finance Agent ready on {self.device} - Phi-3.5-mini (~2.1GB VRAM)")

@@ -15,7 +15,7 @@ class RiskAgent:
         self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Force CPU to save GPU memory
         self.is_ready = False
         
         # Configure 4-bit quantization for RTX 4050
@@ -36,14 +36,24 @@ class RiskAgent:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with 4-bit quantization for RTX 4050
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                quantization_config=self.quant_config,
-                device_map="auto",
-                dtype=torch.float16,
-                max_memory={0: "1GB"} if self.device == "cuda" else None
-            )
+            # Load model - CPU only to save GPU memory
+            if self.device == "cpu":
+                # CPU configuration - no quantization needed
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float32,
+                    device_map="cpu",
+                    trust_remote_code=True
+                )
+            else:
+                # GPU configuration with 4-bit quantization
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=self.quant_config,
+                    device_map="auto",
+                    dtype=torch.float16,
+                    max_memory={0: "1GB"}
+                )
             
             self.is_ready = True
             logger.info(f"✅ Risk Agent ready on {self.device} - ~0.55GB VRAM")

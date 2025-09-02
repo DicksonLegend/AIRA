@@ -32,13 +32,19 @@ class AgentOrchestrator:
         self.is_initialized = False
         
     async def initialize_agents(self):
-        """Initialize all Four Pillars agents"""
+        """Initialize all Four Pillars agents sequentially to avoid GPU memory spikes"""
         logger.info("🚀 Initializing Four Pillars agents...")
         
         try:
-            # Initialize agents in parallel for faster startup
-            tasks = [agent.initialize() for agent in self.agents]
-            await asyncio.gather(*tasks)
+            # Initialize CPU agents first (Finance, Risk)
+            logger.info("📍 Initializing CPU agents first...")
+            await self.finance_agent.initialize()
+            await self.risk_agent.initialize()
+            
+            # Then initialize GPU agents sequentially (Compliance, Market)
+            logger.info("📍 Initializing GPU agents...")
+            await self.compliance_agent.initialize()
+            await self.market_agent.initialize()
             
             self.is_initialized = True
             logger.info("✅ All Four Pillars agents initialized successfully")
