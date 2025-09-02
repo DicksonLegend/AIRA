@@ -15,38 +15,32 @@ class RiskAgent:
         self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Force CPU for lightweight model
         self.is_ready = False
         
-        # Configure 4-bit quantization for RTX 4050
-        self.quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4"
-        )
+        # Configure for CPU optimization (no quantization needed)
+        self.quant_config = None  # CPU doesn't need quantization
         
     async def initialize(self):
-        """Initialize the Risk Agent with RTX 4050 optimization"""
+        """Initialize the Risk Agent with CPU optimization"""
         try:
-            logger.info(f"🛡️ Initializing Risk Agent with {self.model_name}")
+            logger.info(f"🛡️ Initializing Risk Agent with {self.model_name} on CPU")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with 4-bit quantization for RTX 4050
+            # Load model for CPU (no quantization, optimized for CPU inference)
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                quantization_config=self.quant_config,
-                device_map="auto",
-                dtype=torch.float16,
-                max_memory={0: "1GB"} if self.device == "cuda" else None
+                device_map="cpu",
+                dtype=torch.float32,  # Use dtype instead of torch_dtype
+                trust_remote_code=True
             )
             
             self.is_ready = True
-            logger.info(f"✅ Risk Agent ready on {self.device} - ~0.55GB VRAM")
+            logger.info(f"✅ Risk Agent ready on CPU - TinyLlama (~0.55GB RAM)")
             
         except Exception as e:
             logger.error(f"❌ Risk Agent initialization failed: {e}")
@@ -72,12 +66,11 @@ class RiskAgent:
             
             Risk Analysis:"""
             
-            # Tokenize input
+            # Tokenize input for CPU inference
             inputs = self.tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
-            if self.device == "cuda":
-                inputs = inputs.to(self.device)
+            # No need to move to CUDA since we're using CPU
             
-            # Generate analysis
+            # Generate analysis on CPU
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs,

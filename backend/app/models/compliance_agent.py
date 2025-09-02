@@ -15,31 +15,28 @@ class ComplianceAgent:
         self.model_name = "nlpaueb/legal-bert-base-uncased"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cpu"  # Force CPU for lightweight BERT model
         self.is_ready = False
         
     async def initialize(self):
-        """Initialize the Compliance Agent with RTX 4050 optimization"""
+        """Initialize the Compliance Agent with CPU optimization"""
         try:
-            logger.info(f"⚖️ Initializing Compliance Agent with {self.model_name}")
+            logger.info(f"⚖️ Initializing Compliance Agent with {self.model_name} on CPU")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             
-            # Load Legal-BERT model optimized for compliance analysis
-            # Force safetensors usage to avoid torch.load security issues
+            # Load Legal-BERT model optimized for CPU compliance analysis
             self.model = AutoModel.from_pretrained(
                 self.model_name,
-                dtype=torch.float16 if self.device == "cuda" else torch.float32,
+                dtype=torch.float32,  # Use dtype instead of torch_dtype for CPU
+                device_map="cpu",
                 use_safetensors=True,
                 trust_remote_code=True
             )
             
-            if self.device == "cuda":
-                self.model = self.model.to(self.device)
-            
             self.is_ready = True
-            logger.info(f"✅ Compliance Agent ready on {self.device} - ~0.4GB VRAM")
+            logger.info(f"✅ Compliance Agent ready on CPU - Legal-BERT (~0.4GB RAM)")
             
         except Exception as e:
             logger.error(f"❌ Compliance Agent initialization failed: {e}")
@@ -103,7 +100,7 @@ class ComplianceAgent:
             # Create analysis prompt
             text = f"Analyzing {area} compliance for: {scenario}"
             
-            # Tokenize
+            # Tokenize for CPU inference
             inputs = self.tokenizer(
                 text, 
                 return_tensors="pt", 
@@ -111,11 +108,9 @@ class ComplianceAgent:
                 truncation=True, 
                 padding=True
             )
+            # No need to move to CUDA since we're using CPU
             
-            if self.device == "cuda":
-                inputs = {k: v.to(self.device) for k, v in inputs.items()}
-            
-            # Get embeddings
+            # Get embeddings on CPU
             with torch.no_grad():
                 outputs = self.model(**inputs)
                 embeddings = outputs.last_hidden_state.mean(dim=1)

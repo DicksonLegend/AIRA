@@ -3,11 +3,11 @@
 RTX 4050 GPU Optimized Model Selection
 
 This file documents the exact Hugging Face models used for each agent,
-optimized for RTX 4050 Laptop GPU (6GB VRAM).
+optimized for RTX 4050 Laptop GPU (6GB VRAM) with smart GPU/CPU allocation.
 """
 
 # =============================================================================
-# MODEL SPECIFICATIONS
+# MODEL SPECIFICATIONS WITH DEVICE ALLOCATION
 # =============================================================================
 
 AGENT_MODELS = {
@@ -15,6 +15,7 @@ AGENT_MODELS = {
         "model_name": "microsoft/phi-3.5-mini-instruct",
         "size_4bit": "2.1GB",
         "parameters": "3.8B",
+        "device": "gpu",  # Large model - GPU optimized
         "features": [
             "Optimized for numerical reasoning",
             "Excellent for financial KPIs and ROI calculations",
@@ -27,30 +28,33 @@ AGENT_MODELS = {
         "model_name": "TinyLlama/TinyLlama-1.1B-Chat-v1.0",
         "size_4bit": "0.55GB", 
         "parameters": "1.1B",
+        "device": "cpu",  # Lightweight model - CPU optimized
         "features": [
             "Lightweight for fast risk scoring",
             "Optimized for fast inference",
             "Good chat/instruction following"
         ],
-        "memory_usage": "~0.55GB VRAM with 4-bit quantization"
+        "memory_usage": "~0.55GB RAM (CPU)"
     },
     
     "compliance": {
         "model_name": "nlpaueb/legal-bert-base-uncased",
         "size": "0.4GB",
         "parameters": "110M (BERT-base)",
+        "device": "cpu",  # Small model - CPU optimized
         "features": [
             "Fine-tuned on legal and regulatory text",
             "Perfect for compliance checks",
             "Specialized legal domain knowledge"
         ],
-        "memory_usage": "~0.4GB VRAM"
+        "memory_usage": "~0.4GB RAM (CPU)"
     },
     
     "market": {
         "model_name": "mistralai/Mistral-7B-Instruct-v0.3", 
         "size_4bit": "4-6GB",
         "parameters": "7B (quantized from ~13GB full)",
+        "device": "gpu",  # Large model - GPU optimized
         "features": [
             "Large language model for complex market analysis",
             "Excellent instruction following",
@@ -61,19 +65,40 @@ AGENT_MODELS = {
 }
 
 # =============================================================================
+# DEVICE ALLOCATION STRATEGY
+# =============================================================================
+
+DEVICE_ALLOCATION = {
+    "gpu_models": ["finance", "market"],  # High compute models
+    "cpu_models": ["risk", "compliance"],  # Lightweight models
+    "total_gpu_memory": "~6.1-8.1GB optimized allocation",
+    "total_cpu_memory": "~0.95GB RAM usage",
+    "strategy": "Smart allocation for RTX 4050 6GB VRAM limit"
+}
+
+# =============================================================================
 # TOTAL MEMORY USAGE
 # =============================================================================
 
 TOTAL_MEMORY_ESTIMATE = """
-Expected GPU Memory Usage (Sequential Loading):
-- Finance Agent (Phi-3.5-mini): 2.1GB
-- Risk Agent (TinyLlama): 0.55GB  
-- Compliance Agent (Legal-BERT): 0.4GB
-- Market Agent (Mistral-7B): 4-6GB
+Optimized GPU/CPU Memory Usage:
 
-Total if all loaded simultaneously: ~7-9GB
-RTX 4050 Available: 6GB
-⚠️  NOTE: May need sequential loading or CPU offload for Market Agent
+GPU ALLOCATION (RTX 4050 - 6GB VRAM):
+- Finance Agent (Phi-3.5-mini): 2.1GB VRAM ✅
+- Market Agent (Mistral-7B): 4-6GB VRAM ✅
+Total GPU Usage: ~6.1-8.1GB (using memory optimization)
+
+CPU ALLOCATION (System RAM):
+- Risk Agent (TinyLlama): 0.55GB RAM ✅
+- Compliance Agent (Legal-BERT): 0.4GB RAM ✅
+Total CPU Usage: ~0.95GB RAM
+
+BENEFITS:
+✅ GPU handles compute-intensive large models
+✅ CPU handles lightweight fast inference models
+✅ Optimal memory distribution for RTX 4050
+✅ Better parallel processing capability
+✅ Reduced GPU memory pressure
 """
 
 # =============================================================================

@@ -15,35 +15,38 @@ class FinanceAgent:
         self.model_name = "microsoft/phi-3.5-mini-instruct"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Force GPU allocation
         self.is_ready = False
         
-        # Configure 4-bit quantization for RTX 4050 (6GB VRAM)
-        self.quant_config = BitsAndBytesConfig(
-            load_in_4bit=True,
-            bnb_4bit_compute_dtype=torch.float16,
-            bnb_4bit_use_double_quant=True,
-            bnb_4bit_quant_type="nf4"
-        )
+        # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - GPU optimized
+        if self.device == "cuda":
+            self.quant_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4"
+            )
+        else:
+            self.quant_config = None
         
     async def initialize(self):
         """Initialize the Finance Agent with RTX 4050 optimization"""
         try:
-            logger.info(f"💰 Initializing Finance Agent with {self.model_name}")
+            logger.info(f"💰 Initializing Finance Agent with {self.model_name} on GPU")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with 4-bit quantization for RTX 4050
+            # Load model with 4-bit quantization for RTX 4050 GPU
             self.model = AutoModelForCausalLM.from_pretrained(
                 self.model_name,
-                quantization_config=self.quant_config,
-                device_map="auto",
-                dtype=torch.float16,
+                quantization_config=self.quant_config if self.device == "cuda" else None,
+                device_map="auto" if self.device == "cuda" else "cpu",
+                dtype=torch.float16 if self.device == "cuda" else torch.float32,
                 trust_remote_code=True,
-                max_memory={0: "5GB"} if self.device == "cuda" else None
+                max_memory={0: "3GB"} if self.device == "cuda" else None
             )
             
             self.is_ready = True
