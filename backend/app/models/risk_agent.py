@@ -15,35 +15,53 @@ class RiskAgent:
         self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # Use your pre-downloaded model
         self.model = None
         self.tokenizer = None
-        self.device = "cpu"  # Force CPU for lightweight model
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU if available
         self.is_ready = False
         
-        # Configure for CPU optimization (no quantization needed)
-        self.quant_config = None  # CPU doesn't need quantization
+        # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - Conservative settings
+        if self.device == "cuda":
+            self.quant_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                llm_int8_enable_fp32_cpu_offload=True  # Enable CPU offload for tight VRAM
+            )
+        else:
+            self.quant_config = None  # CPU doesn't need quantization
         
     async def initialize(self):
-        """Initialize the Risk Agent with CPU optimization"""
+        """Initialize the Risk Agent with GPU optimization"""
         try:
-            logger.info(f"🛡️ Initializing Risk Agent with {self.model_name} on CPU")
+            logger.info(f"🛡️ Initializing Risk Agent with {self.model_name} on {self.device.upper()}")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model for CPU with memory optimization
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                device_map={"": "cpu"},  # Force CPU device mapping
-                dtype=torch.float16,  # Use float16 for memory efficiency
-                trust_remote_code=True,
-                low_cpu_mem_usage=True,
-                offload_folder=None,  # Disable disk offloading
-                max_memory={"cpu": "2GB"}  # Limit CPU memory for TinyLlama
-            )
+            # Load model with GPU optimization
+            if self.device == "cuda":
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=self.quant_config,
+                    device_map="auto",  # Let transformers handle allocation
+                    trust_remote_code=True,
+                    torch_dtype=torch.float16,
+                    max_memory={0: "800MB", "cpu": "4GB"}  # Very conservative + CPU fallback
+                )
+            else:
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    device_map={"": "cpu"},
+                    torch_dtype=torch.float32,  # Use float32 for CPU stability
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True,
+                    use_cache=True  # Enable KV cache for faster inference
+                )
             
             self.is_ready = True
-            logger.info(f"✅ Risk Agent ready on CPU - TinyLlama (~0.55GB RAM)")
+            logger.info(f"✅ Risk Agent ready on {self.device.upper()} - TinyLlama (~0.3GB {'VRAM' if self.device == 'cuda' else 'RAM'})")
             
         except Exception as e:
             logger.error(f"❌ Risk Agent initialization failed: {e}")
@@ -69,11 +87,11 @@ class RiskAgent:
             
             Risk Analysis:"""
             
-            # Tokenize input for CPU inference
+            # Tokenize input and move to correct device
             inputs = self.tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
-            # No need to move to CUDA since we're using CPU
+            inputs = inputs.to(self.device)  # Move inputs to same device as model
             
-            # Generate analysis on CPU
+            # Generate analysis
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs,

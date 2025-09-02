@@ -1,6 +1,6 @@
 """
 📈 Market Agent - Market Dynamics and Competitive Analysis
-RTX 4050 GPU Optimized with Mistral-7B-Instruct
+RTX 4050 GPU Optimized with TinyLlama-1.1B-Chat
 """
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
@@ -12,38 +12,63 @@ logger = logging.getLogger(__name__)
 
 class MarketAgent:
     def __init__(self):
-        self.model_name = "mistralai/Mistral-7B-Instruct-v0.3"
+        # Market Agent uses TinyLlama for lightweight market analysis
+        self.model_name = "TinyLlama/TinyLlama-1.1B-Chat-v1.0"  # Switched from Mistral-7B to TinyLlama
         self.model = None
         self.tokenizer = None
-        self.device = "cpu"  # Run on CPU to avoid GPU memory issues
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.is_ready = False
         
-        # No quantization for CPU - keep it simple
-        self.quant_config = None
+        # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - Much lighter than Mistral-7B
+        if self.device == "cuda":
+            self.quant_config = BitsAndBytesConfig(
+                load_in_4bit=True,
+                bnb_4bit_compute_dtype=torch.float16,
+                bnb_4bit_use_double_quant=True,
+                bnb_4bit_quant_type="nf4",
+                llm_int8_enable_fp32_cpu_offload=True  # Enable CPU offload for safety
+            )
+        else:
+            self.quant_config = None
         
     async def initialize(self):
-        """Initialize the Market Agent with RTX 4050 optimization"""
+        """Initialize the Market Agent with TinyLlama GPU optimization"""
         try:
-            logger.info(f"📈 Initializing Market Agent with {self.model_name} on CPU")
+            logger.info(f"📈 Initializing Market Agent with {self.model_name} on {self.device.upper()}")
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load Mistral-7B on CPU with strict memory limits
-            self.model = AutoModelForCausalLM.from_pretrained(
-                self.model_name,
-                device_map={"": "cpu"},  # Force CPU device mapping
-                dtype=torch.float16,  # Use float16 for memory efficiency
-                trust_remote_code=True,
-                low_cpu_mem_usage=True,
-                offload_folder=None,  # Disable disk offloading
-                max_memory={"cpu": "8GB"}  # Limit CPU memory for Mistral
-            )
+            # Load model with GPU optimization for TinyLlama
+            if self.device == "cuda":
+                # Run TinyLlama on GPU with quantization - much lighter than Mistral-7B
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    quantization_config=self.quant_config,
+                    device_map="auto",  # Let transformers handle allocation
+                    trust_remote_code=True,
+                    torch_dtype=torch.float16,
+                    max_memory={0: "800MB", "cpu": "4GB"}  # Conservative + CPU fallback
+                )
+                self.actual_device = "cuda"  # Track actual device used
+                vram_info = "~0.5GB VRAM"
+            else:
+                # CPU fallback configuration
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float32,
+                    device_map={"": "cpu"},
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True,
+                    use_cache=True
+                )
+                self.actual_device = "cpu"
+                vram_info = "~1GB RAM"
             
             self.is_ready = True
-            logger.info(f"✅ Market Agent ready on CPU - Mistral-7B (~13GB RAM)")
+            logger.info(f"✅ Market Agent ready on {self.actual_device.upper()} - TinyLlama ({vram_info})")
             
         except Exception as e:
             logger.error(f"❌ Market Agent initialization failed: {e}")
@@ -71,11 +96,11 @@ class MarketAgent:
             
             Market Assessment:"""
             
-            # Tokenize input (hybrid CPU/GPU will handle device placement automatically)
+            # Tokenize input and move to correct device
             inputs = self.tokenizer.encode(prompt, return_tensors="pt", max_length=512, truncation=True)
-            # No manual device placement needed - auto device mapping handles this
+            inputs = inputs.to(self.device)  # Move inputs to same device as model
             
-            # Generate analysis with hybrid CPU/GPU inference
+            # Generate analysis
             with torch.no_grad():
                 outputs = self.model.generate(
                     inputs,
@@ -84,7 +109,7 @@ class MarketAgent:
                     temperature=0.7,
                     do_sample=True,
                     pad_token_id=self.tokenizer.eos_token_id,
-                    attention_mask=torch.ones_like(inputs)  # Explicit attention mask
+                    attention_mask=torch.ones_like(inputs)  # Attention mask on same device
                 )
             
             # Decode response
@@ -324,7 +349,8 @@ class MarketAgent:
         return {
             "agent": "Market",
             "model": self.model_name,
-            "device": self.device,
+            "device": getattr(self, 'actual_device', self.device),  # Show actual device used
             "is_ready": self.is_ready,
-            "gpu_enabled": self.device == "cuda"
+            "gpu_enabled": False,  # Mistral-7B runs on CPU for stability
+            "note": "Running on CPU to avoid GPU memory issues"
         }

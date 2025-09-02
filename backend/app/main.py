@@ -1,7 +1,7 @@
 """
 🚀 FOUR PILLARS AI - Pure CrewAI Framework Backend
 Complete CrewAI Multi-Agent Business Intelligence Platform
-RTX 4050 GPU Optimized - No Manual Orchestrator
+RTX 4050 GPU Optimized - 4 Agent Configuration (Finance, Risk, Compliance, Market with TinyLlama)
 """
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,8 +22,8 @@ logger = logging.getLogger(__name__)
 # Initialize FastAPI app
 app = FastAPI(
     title="Four Pillars AI - CrewAI Framework",
-    description="Pure CrewAI Implementation of Multi-Agent Business Intelligence Platform",
-    version="3.0.0"
+    description="Pure CrewAI Implementation of Multi-Agent Business Intelligence Platform (4-Agent Configuration with TinyLlama)",
+    version="3.2.0"
 )
 
 # CORS middleware
@@ -76,27 +76,13 @@ async def root():
     return {
         "message": "🚀 Four Pillars AI - Pure CrewAI Framework",
         "status": "operational", 
-        "version": "3.0.0",
+        "version": "3.2.0",
         "framework": "CrewAI v0.175.0",
-        "orchestration": "Pure CrewAI (No Manual Orchestrator)",
-        "features": {
-            "multi_agent_crews": True,
-            "gpu_optimized": True,
-            "hackathon_ready": True,
-            "structured_workflows": True,
-            "crew_coordination": True,
-            "memory_enabled": True,
-            "planning_enabled": True
-        },
-        "endpoints": {
-            "analyze": "/analyze",
-            "health": "/health",
-            "status": "/status",
-            "types": "/analyze/types",
-            "examples": "/examples",
-            "system_info": "/system/info",
-            "docs": "/docs"
-        }
+        "agents": ["Finance", "Risk", "Compliance", "Market"],
+        "models": ["Phi-3.5-mini", "TinyLlama", "Legal-BERT", "TinyLlama (Market)"],
+        "gpu_optimization": "RTX 4050 6GB VRAM",
+        "endpoints": ["/analyze", "/status", "/health", "/models"],
+        "documentation": "/docs"
     }
 
 @app.get("/health")

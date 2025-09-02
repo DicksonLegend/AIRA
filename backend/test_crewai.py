@@ -9,7 +9,7 @@ import os
 # Add parent directory to path to import modules
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from app.services.crewai_orchestrator import CrewAIOrchestrator
+from app.services.four_pillars_crewai import FourPillarsCrewAI
 
 async def test_crewai_orchestrator():
     """Test CrewAI orchestrator functionality"""
@@ -17,7 +17,7 @@ async def test_crewai_orchestrator():
     
     try:
         # Initialize orchestrator
-        orchestrator = CrewAIOrchestrator()
+        orchestrator = FourPillarsCrewAI()
         print("✅ CrewAI Orchestrator created")
         
         # Initialize agents

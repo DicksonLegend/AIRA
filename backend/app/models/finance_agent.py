@@ -12,19 +12,21 @@ logger = logging.getLogger(__name__)
 
 class FinanceAgent:
     def __init__(self):
-        self.model_name = "microsoft/phi-3.5-mini-instruct"  # Use your pre-downloaded model
+        # Finance Agent uses Phi-3.5-mini for financial calculations
+        self.model_name = "microsoft/phi-3.5-mini-instruct"  # Correct model for finance
         self.model = None
         self.tokenizer = None
-        self.device = "cpu"  # Force CPU to avoid GPU memory issues
+        self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.is_ready = False
         
-        # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - GPU optimized
+        # Configure for optimal CPU performance
         if self.device == "cuda":
             self.quant_config = BitsAndBytesConfig(
                 load_in_4bit=True,
                 bnb_4bit_compute_dtype=torch.float16,
                 bnb_4bit_use_double_quant=True,
                 bnb_4bit_quant_type="nf4"
+                # Removed CPU offload to avoid meta tensor issues
             )
         else:
             self.quant_config = None
@@ -39,32 +41,30 @@ class FinanceAgent:
             if self.tokenizer.pad_token is None:
                 self.tokenizer.pad_token = self.tokenizer.eos_token
             
-            # Load model with optimized settings for CPU/GPU
-            if self.device == "cpu":
-                # CPU configuration with strict memory limits
-                self.model = AutoModelForCausalLM.from_pretrained(
-                    self.model_name,
-                    torch_dtype=torch.float16,  # Use float16 for memory efficiency
-                    device_map={"": "cpu"},  # Force CPU device mapping
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True,  # Optimize CPU memory usage
-                    offload_folder=None,  # Disable disk offloading
-                    max_memory={"cpu": "6GB"}  # Reduced memory limit
-                )
-            else:
-                # GPU configuration with quantization
+            # Load model with GPU/CPU optimization
+            if self.device == "cuda":
+                # GPU configuration with simpler quantization for RTX 4050
                 self.model = AutoModelForCausalLM.from_pretrained(
                     self.model_name,
                     quantization_config=self.quant_config,
-                    device_map={"": "cuda:0"},  # Force GPU device mapping
-                    dtype=torch.float16,
+                    torch_dtype=torch.float16,
                     trust_remote_code=True,
-                    max_memory={"0": "3GB"},  # Strict GPU memory limit
-                    offload_folder=None  # Disable disk offloading
+                    low_cpu_mem_usage=True
+                )
+            else:
+                # CPU fallback configuration
+                self.model = AutoModelForCausalLM.from_pretrained(
+                    self.model_name,
+                    torch_dtype=torch.float32,
+                    device_map={"": "cpu"},
+                    trust_remote_code=True,
+                    low_cpu_mem_usage=True,
+                    use_cache=True
                 )
             
+            vram_info = "~2GB VRAM" if self.device == "cuda" else "~3.8GB RAM"
             self.is_ready = True
-            logger.info(f"✅ Finance Agent ready on {self.device.upper()} - Phi-3.5-mini")
+            logger.info(f"✅ Finance Agent ready on {self.device.upper()} - Phi-3.5-mini ({vram_info})")
             
         except Exception as e:
             logger.error(f"❌ Finance Agent initialization failed: {e}")
