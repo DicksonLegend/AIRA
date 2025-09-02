@@ -21,11 +21,11 @@ async def test_crewai_orchestrator():
         print("✅ CrewAI Orchestrator created")
         
         # Initialize agents
-        await orchestrator.initialize_agents()
+        await orchestrator.initialize()
         print("✅ Agents initialized")
         
         # Test status
-        status = await orchestrator.get_crew_status()
+        status = await orchestrator.get_system_status()
         print(f"✅ Status check: {status}")
         
         # Test simple analysis
@@ -33,9 +33,9 @@ async def test_crewai_orchestrator():
         
         print(f"🎯 Testing analysis with scenario: {test_scenario}")
         
-        result = await orchestrator.analyze_scenario_with_crew(test_scenario, "financial")
+        result = await orchestrator.analyze_business_scenario(test_scenario, "financial")
         print("✅ Financial analysis completed")
-        print(f"📊 Result summary: {result.get('formatted_summary', {}).get('executive_summary', 'No summary')}")
+        print(f"📊 Result summary: {result.get('crew_output', {}).get('summary', 'No summary')}")
         
         print("\n🚀 CrewAI integration test successful!")
         return True

@@ -1,12 +1,17 @@
 """
 💰 Finance Agent - Financial Viability Analysis
-RTX 4050 GPU Optimized with Mistral-7B
+RTX 4050 GPU Optimized with Phi-3.5-mini
 """
 import torch
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
 import logging
 from typing import Dict, Any, List
 import asyncio
+
+# Data pipeline imports
+from app.data.financial_db import FinancialDB
+from app.data.market_news import MarketNews
+from app.data.vectore_store import VectorStore
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +24,12 @@ class FinanceAgent:
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         self.is_ready = False
         
-        # Configure for optimal CPU performance
+        # Data pipeline connections
+        self.financial_db = None
+        self.market_news = None
+        self.vector_store = None
+        
+        # Configure for optimal GPU performance
         if self.device == "cuda":
             self.quant_config = BitsAndBytesConfig(
                 load_in_4bit=True,
@@ -32,9 +42,19 @@ class FinanceAgent:
             self.quant_config = None
         
     async def initialize(self):
-        """Initialize the Finance Agent with RTX 4050 optimization"""
+        """Initialize the Finance Agent with data pipeline connections"""
         try:
             logger.info(f"💰 Initializing Finance Agent with {self.model_name} on {self.device.upper()}")
+            
+            # Initialize data pipeline connections first
+            logger.info("🔗 Connecting Finance Agent to data sources...")
+            self.financial_db = FinancialDB()
+            self.market_news = MarketNews()
+            self.vector_store = VectorStore()
+            
+            await self.financial_db.initialize()
+            await self.market_news.initialize()
+            await self.vector_store.initialize()
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -71,19 +91,42 @@ class FinanceAgent:
             raise
     
     async def analyze(self, scenario: str) -> Dict[str, Any]:
-        """Analyze financial viability of business scenario"""
+        """Analyze financial viability of business scenario with real data"""
         if not self.is_ready:
             raise RuntimeError("Finance Agent not initialized")
         
         try:
-            # Create financial analysis prompt
+            # Get real financial data from data pipeline
+            logger.info("💰 Gathering real financial data...")
+            
+            # Get financial metrics and government expenditure data
+            financial_ratios = await self.financial_db.get_financial_ratios({
+                'entity_id': 'scenario_analysis',
+                'scenario': scenario
+            })
+            
+            # Get market impact analysis
+            market_impact = await self.market_news.get_government_expenditure_impact()
+            
+            # Search for similar financial scenarios using vector store
+            similar_scenarios = await self.vector_store.search_financial_context(scenario, top_k=3)
+            
+            # Get economic indicators
+            economic_data = await self.financial_db.get_economic_indicators()
+            
+            # Create enhanced financial analysis prompt with real data
             prompt = f"""
             Financial Analysis for Business Scenario:
             {scenario}
             
+            Real Data Context:
+            - Market Impact Score: {market_impact.get('impact_score', 'N/A')}
+            - Economic Indicators: {economic_data.get('summary', 'Available')}
+            - Similar Scenarios Found: {len(similar_scenarios)}
+            
             Analyze the following financial aspects:
             1. Revenue projections and market potential
-            2. Cost structure and operational expenses
+            2. Cost structure and operational expenses  
             3. ROI and profitability timeline
             4. Funding requirements and cash flow
             5. Financial risks and mitigation strategies
@@ -112,11 +155,17 @@ class FinanceAgent:
             generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             analysis = generated_text[len(prompt):].strip()
             
-            # Structure the response
+            # Combine AI analysis with real data
             result = {
                 "agent": "Finance",
                 "model": self.model_name,
                 "analysis": analysis,
+                "real_data": {
+                    "financial_ratios": financial_ratios,
+                    "market_impact": market_impact,
+                    "economic_indicators": economic_data,
+                    "similar_scenarios": len(similar_scenarios)
+                },
                 "metrics": {
                     "revenue_potential": self._extract_score(analysis, "revenue"),
                     "cost_efficiency": self._extract_score(analysis, "cost"),

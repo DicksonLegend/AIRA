@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """
 🚀 Four Pillars AI Backend Startup Script
-RTX 4050 GPU Optimized with Specified Hugging Face Models
+RTX 4050 GPU Optimized with Real Data Pipeline Integration
 
 This script starts the FastAPI backend with all four AI agents:
 - Finance Agent: microsoft/phi-3.5-mini-instruct (2.1GB)
 - Risk Agent: TinyLlama/TinyLlama-1.1B-Chat-v1.0 (0.55GB)  
 - Compliance Agent: nlpaueb/legal-bert-base-uncased (0.4GB)
-- Market Agent: distilgpt2 (0.35GB)
+- Market Agent: TinyLlama/TinyLlama-1.1B-Chat-v1.0 (0.55GB)
 
-Total GPU Memory Usage: ~3.4GB (fits in RTX 4050 6GB)
+Total GPU Memory Usage: ~3.7GB (fits in RTX 4050 6GB)
+Real Data Pipeline: Financial DB, Market News, Vector Store, Compliance DB, Risk API
 """
 
 import asyncio
@@ -30,17 +31,18 @@ def print_startup_banner():
     banner = """
     ╔══════════════════════════════════════════════════════════════╗
     ║                    🚀 FOUR PILLARS AI                       ║
-    ║                Multi-Agent Business Intelligence             ║
-    ║                Smart GPU/CPU Allocation - RTX 4050          ║
+    ║         Multi-Agent Business Intelligence Platform           ║
+    ║           GPU Optimized + Real Data Pipeline                ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct  [CPU] ║
-    ║ 🛡️  Risk Agent:      TinyLlama/TinyLlama-1.1B-Chat    [CPU] ║
+    ║ 💰 Finance Agent:    microsoft/phi-3.5-mini-instruct  [GPU] ║
+    ║ 🛡️  Risk Agent:      TinyLlama/TinyLlama-1.1B-Chat    [GPU] ║
     ║ ⚖️  Compliance Agent: nlpaueb/legal-bert-base-uncased [GPU] ║
-    ║ 📈 Market Agent:     mistralai/Mistral-7B-Instruct    [CPU] ║
+    ║ 📈 Market Agent:     TinyLlama/TinyLlama-1.1B-Chat    [GPU] ║
     ╠══════════════════════════════════════════════════════════════╣
-    ║ CPU Memory: Finance(7GB) + Risk(2GB) + Market(13GB)        ║
-    ║ GPU Memory: Compliance(0.4GB) = ~0.4GB VRAM                ║
-    ║ Backend: FastAPI + WebSocket + Async Processing             ║
+    ║ 🔧 GPU Memory: Finance(2.1GB) + Risk(0.55GB) + Market(0.55GB) + Compliance(0.4GB) ║
+    ║ 💾 Total VRAM: ~3.7GB (Perfect for RTX 4050 6GB)           ║
+    ║ 📊 Data Pipeline: FinancialDB + MarketNews + VectorStore    ║
+    ║ 🌐 Backend: FastAPI + CrewAI + WebSocket + Async            ║
     ╚══════════════════════════════════════════════════════════════╝
     """
     print(banner)
@@ -49,7 +51,10 @@ def main():
     """Start the Four Pillars AI backend"""
     print_startup_banner()
     
-    logger.info("🔧 Starting Four Pillars AI Backend...")
+    logger.info("🔧 Starting Four Pillars AI Backend with Real Data Pipeline...")
+    logger.info("🤖 All 4 Agents: Finance (Phi-3.5) + Risk (TinyLlama) + Compliance (Legal-BERT) + Market (TinyLlama)")
+    logger.info("💾 GPU Memory: ~3.7GB optimized for RTX 4050 (6GB)")
+    logger.info("📊 Data Sources: FinancialDB + MarketNews + VectorStore + ComplianceDB + RiskAPI")
     logger.info("📱 API Documentation: http://localhost:8000/docs")
     logger.info("🌐 WebSocket Endpoint: ws://localhost:8000/ws")
     logger.info("⚡ Health Check: http://localhost:8000/health")

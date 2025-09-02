@@ -20,10 +20,12 @@ class RiskAPI:
         }
         self.cache = {}
         self.cache_ttl = 600  # 10 minutes
+        self.dataset_loader = None
         
-    async def initialize(self):
+    async def initialize(self, dataset_loader=None):
         """Initialize Risk API connections"""
         logger.info("🛡️ Initializing Risk API...")
+        self.dataset_loader = dataset_loader
         # Placeholder for actual API initialization
         logger.info("✅ Risk API ready")
     
@@ -160,6 +162,327 @@ class RiskAPI:
         self._cache_data(cache_key, trends)
         logger.info(f"📈 Risk trends retrieved for {risk_type}")
         return trends
+    
+    async def assess_fiscal_risk(self, region: str = "India") -> Dict[str, Any]:
+        """Assess fiscal risk using government financial data"""
+        if not self.dataset_loader:
+            return {"error": "No dataset loader available"}
+        
+        try:
+            # Get fiscal deficit data
+            deficit_data = self.dataset_loader.get_fiscal_deficit_trends()
+            revenue_data = self.dataset_loader.get_revenue_trends()
+            
+            fiscal_assessment = {
+                "region": region,
+                "fiscal_health": self._analyze_fiscal_health(deficit_data, revenue_data),
+                "deficit_trends": self._analyze_deficit_trends(deficit_data),
+                "revenue_stability": self._analyze_revenue_stability(revenue_data),
+                "sovereign_risk_score": self._calculate_sovereign_risk_score(deficit_data, revenue_data),
+                "fiscal_sustainability": self._assess_fiscal_sustainability(deficit_data, revenue_data),
+                "risk_factors": self._identify_fiscal_risk_factors(deficit_data, revenue_data),
+                "recommendations": self._generate_fiscal_recommendations(deficit_data, revenue_data),
+                "comparative_analysis": self._compare_fiscal_performance(deficit_data),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            logger.info(f"📊 Fiscal risk assessment completed for {region}")
+            return fiscal_assessment
+            
+        except Exception as e:
+            logger.error(f"Error in fiscal risk assessment: {e}")
+            return {"error": str(e)}
+    
+    async def assess_market_volatility_risk(self) -> Dict[str, Any]:
+        """Assess market volatility risk using NSE data"""
+        if not self.dataset_loader:
+            return {"error": "No dataset loader available"}
+        
+        try:
+            market_data = self.dataset_loader.get_market_data()
+            if not market_data or "processed_data" not in market_data:
+                return {"error": "No market data available"}
+            
+            df = market_data["processed_data"]
+            summary = market_data.get("summary", {})
+            indicators = market_data.get("technical_indicators", {})
+            
+            volatility_assessment = {
+                "market_symbol": "NSE-TATAGLOBAL11",
+                "volatility_metrics": self._calculate_volatility_metrics(df),
+                "risk_measures": self._calculate_risk_measures(df),
+                "market_stress_indicators": self._assess_market_stress(df, summary),
+                "volatility_regime": self._classify_volatility_regime(indicators),
+                "downside_risk": self._calculate_downside_risk(df),
+                "risk_adjusted_returns": self._calculate_risk_adjusted_metrics(df),
+                "recommendations": self._generate_market_risk_recommendations(df, indicators),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            logger.info("📈 Market volatility risk assessment completed")
+            return volatility_assessment
+            
+        except Exception as e:
+            logger.error(f"Error in market volatility assessment: {e}")
+            return {"error": str(e)}
+    
+    def _analyze_fiscal_health(self, deficit_data, revenue_data) -> Dict[str, Any]:
+        """Analyze overall fiscal health"""
+        if deficit_data is None or revenue_data is None:
+            return {"status": "insufficient_data"}
+        
+        try:
+            # Simple fiscal health indicators
+            numeric_cols = deficit_data.select_dtypes(include=['number']).columns
+            if len(numeric_cols) == 0:
+                return {"status": "no_numeric_data"}
+            
+            latest_deficit = deficit_data[numeric_cols].iloc[-1].mean() if len(deficit_data) > 0 else 0
+            avg_deficit = deficit_data[numeric_cols].mean().mean()
+            
+            health_score = 0.7  # Base score
+            if latest_deficit > avg_deficit * 1.2:
+                health_score -= 0.2
+            elif latest_deficit < avg_deficit * 0.8:
+                health_score += 0.1
+            
+            return {
+                "health_score": max(min(health_score, 1.0), 0.0),
+                "status": "healthy" if health_score > 0.7 else "concerning" if health_score > 0.5 else "critical",
+                "latest_deficit_indicator": float(latest_deficit),
+                "average_deficit_indicator": float(avg_deficit)
+            }
+            
+        except Exception as e:
+            return {"status": "analysis_error", "error": str(e)}
+    
+    def _analyze_deficit_trends(self, deficit_data) -> Dict[str, Any]:
+        """Analyze deficit trends over time"""
+        if deficit_data is None or len(deficit_data) == 0:
+            return {"trend": "no_data"}
+        
+        try:
+            numeric_cols = deficit_data.select_dtypes(include=['number']).columns
+            if len(numeric_cols) == 0:
+                return {"trend": "no_numeric_data"}
+            
+            # Calculate trend
+            recent_avg = deficit_data[numeric_cols].tail(3).mean().mean()
+            older_avg = deficit_data[numeric_cols].head(3).mean().mean()
+            
+            if recent_avg > older_avg * 1.1:
+                trend = "worsening"
+            elif recent_avg < older_avg * 0.9:
+                trend = "improving"
+            else:
+                trend = "stable"
+            
+            return {
+                "trend": trend,
+                "recent_average": float(recent_avg),
+                "historical_average": float(older_avg),
+                "change_percentage": float((recent_avg - older_avg) / older_avg * 100) if older_avg != 0 else 0
+            }
+            
+        except Exception as e:
+            return {"trend": "analysis_error", "error": str(e)}
+    
+    def _analyze_revenue_stability(self, revenue_data) -> Dict[str, Any]:
+        """Analyze revenue stability"""
+        if revenue_data is None or len(revenue_data) == 0:
+            return {"stability": "no_data"}
+        
+        try:
+            numeric_cols = revenue_data.select_dtypes(include=['number']).columns
+            if len(numeric_cols) == 0:
+                return {"stability": "no_numeric_data"}
+            
+            # Calculate coefficient of variation
+            revenue_series = revenue_data[numeric_cols].mean(axis=1)
+            if len(revenue_series) > 1:
+                cv = revenue_series.std() / revenue_series.mean()
+                
+                if cv < 0.1:
+                    stability = "high"
+                elif cv < 0.3:
+                    stability = "medium"
+                else:
+                    stability = "low"
+            else:
+                stability = "insufficient_data"
+            
+            return {
+                "stability": stability,
+                "coefficient_of_variation": float(cv) if 'cv' in locals() else None,
+                "revenue_volatility": float(revenue_series.std()) if len(revenue_series) > 1 else None
+            }
+            
+        except Exception as e:
+            return {"stability": "analysis_error", "error": str(e)}
+    
+    def _calculate_sovereign_risk_score(self, deficit_data, revenue_data) -> float:
+        """Calculate sovereign risk score"""
+        base_score = 0.5  # Neutral risk
+        
+        try:
+            # Adjust based on fiscal health
+            if deficit_data is not None and len(deficit_data) > 0:
+                numeric_cols = deficit_data.select_dtypes(include=['number']).columns
+                if len(numeric_cols) > 0:
+                    latest_deficit = deficit_data[numeric_cols].iloc[-1].mean()
+                    if latest_deficit > 50000:  # High deficit (adjust threshold as needed)
+                        base_score += 0.2
+                    elif latest_deficit < 10000:  # Low deficit
+                        base_score -= 0.1
+            
+            # Adjust based on revenue stability
+            if revenue_data is not None and len(revenue_data) > 0:
+                revenue_stability = self._analyze_revenue_stability(revenue_data)
+                if revenue_stability.get("stability") == "high":
+                    base_score -= 0.1
+                elif revenue_stability.get("stability") == "low":
+                    base_score += 0.15
+            
+            return max(min(base_score, 1.0), 0.0)
+            
+        except Exception as e:
+            logger.error(f"Error calculating sovereign risk score: {e}")
+            return 0.5
+    
+    def _assess_fiscal_sustainability(self, deficit_data, revenue_data) -> Dict[str, Any]:
+        """Assess fiscal sustainability"""
+        try:
+            deficit_trend = self._analyze_deficit_trends(deficit_data)
+            revenue_stability = self._analyze_revenue_stability(revenue_data)
+            
+            sustainability_score = 0.7  # Base sustainability
+            
+            if deficit_trend.get("trend") == "worsening":
+                sustainability_score -= 0.2
+            elif deficit_trend.get("trend") == "improving":
+                sustainability_score += 0.1
+            
+            if revenue_stability.get("stability") == "low":
+                sustainability_score -= 0.15
+            elif revenue_stability.get("stability") == "high":
+                sustainability_score += 0.1
+            
+            sustainability_score = max(min(sustainability_score, 1.0), 0.0)
+            
+            if sustainability_score > 0.8:
+                assessment = "sustainable"
+            elif sustainability_score > 0.6:
+                assessment = "moderately_sustainable"
+            else:
+                assessment = "concerning"
+            
+            return {
+                "sustainability_score": sustainability_score,
+                "assessment": assessment,
+                "factors": {
+                    "deficit_trend": deficit_trend.get("trend", "unknown"),
+                    "revenue_stability": revenue_stability.get("stability", "unknown")
+                }
+            }
+            
+        except Exception as e:
+            return {"assessment": "analysis_error", "error": str(e)}
+    
+    def _identify_fiscal_risk_factors(self, deficit_data, revenue_data) -> List[str]:
+        """Identify key fiscal risk factors"""
+        risk_factors = []
+        
+        try:
+            deficit_trend = self._analyze_deficit_trends(deficit_data)
+            if deficit_trend.get("trend") == "worsening":
+                risk_factors.append("Increasing fiscal deficit trend")
+            
+            revenue_stability = self._analyze_revenue_stability(revenue_data)
+            if revenue_stability.get("stability") == "low":
+                risk_factors.append("High revenue volatility")
+            
+            if deficit_data is not None and len(deficit_data) > 0:
+                numeric_cols = deficit_data.select_dtypes(include=['number']).columns
+                if len(numeric_cols) > 0:
+                    latest_deficit = deficit_data[numeric_cols].iloc[-1].mean()
+                    if latest_deficit > 100000:  # Adjust threshold
+                        risk_factors.append("High absolute deficit levels")
+            
+            if not risk_factors:
+                risk_factors.append("No significant fiscal risks identified")
+            
+        except Exception as e:
+            risk_factors.append(f"Risk analysis error: {str(e)}")
+        
+        return risk_factors
+    
+    def _generate_fiscal_recommendations(self, deficit_data, revenue_data) -> List[str]:
+        """Generate fiscal risk mitigation recommendations"""
+        recommendations = []
+        
+        try:
+            deficit_trend = self._analyze_deficit_trends(deficit_data)
+            revenue_stability = self._analyze_revenue_stability(revenue_data)
+            
+            if deficit_trend.get("trend") == "worsening":
+                recommendations.extend([
+                    "Implement deficit reduction measures",
+                    "Review and optimize government expenditures",
+                    "Enhance revenue collection efficiency"
+                ])
+            
+            if revenue_stability.get("stability") == "low":
+                recommendations.extend([
+                    "Diversify revenue sources",
+                    "Implement counter-cyclical fiscal policies",
+                    "Build fiscal reserves during good times"
+                ])
+            
+            # General recommendations
+            recommendations.extend([
+                "Monitor fiscal indicators regularly",
+                "Maintain transparent fiscal reporting",
+                "Plan for long-term fiscal sustainability"
+            ])
+            
+        except Exception as e:
+            recommendations.append("Conduct detailed fiscal analysis")
+        
+        return list(set(recommendations))  # Remove duplicates
+    
+    def _compare_fiscal_performance(self, deficit_data) -> Dict[str, Any]:
+        """Compare fiscal performance across periods"""
+        if deficit_data is None or len(deficit_data) < 2:
+            return {"comparison": "insufficient_data"}
+        
+        try:
+            numeric_cols = deficit_data.select_dtypes(include=['number']).columns
+            if len(numeric_cols) == 0:
+                return {"comparison": "no_numeric_data"}
+            
+            # Split data into periods for comparison
+            mid_point = len(deficit_data) // 2
+            first_half = deficit_data.iloc[:mid_point][numeric_cols].mean().mean()
+            second_half = deficit_data.iloc[mid_point:][numeric_cols].mean().mean()
+            
+            performance_change = ((second_half - first_half) / first_half) * 100 if first_half != 0 else 0
+            
+            if performance_change > 10:
+                performance = "deteriorating"
+            elif performance_change < -10:
+                performance = "improving"
+            else:
+                performance = "stable"
+            
+            return {
+                "comparison": performance,
+                "performance_change_percent": float(performance_change),
+                "first_period_average": float(first_half),
+                "second_period_average": float(second_half)
+            }
+            
+        except Exception as e:
+            return {"comparison": "analysis_error", "error": str(e)}
     
     def _calculate_credit_score(self, entity_data: Dict[str, Any]) -> int:
         """Calculate credit score based on entity data"""

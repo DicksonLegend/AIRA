@@ -8,6 +8,13 @@ import logging
 from typing import Dict, Any, List
 import asyncio
 
+# Data pipeline imports
+from app.data.risk_api import RiskAPI
+from app.data.financial_db import FinancialDB
+from app.data.compliance_db import ComplianceDB
+from app.data.market_news import MarketNews
+from app.data.dataset_loader import DatasetLoader
+
 logger = logging.getLogger(__name__)
 
 class RiskAgent:
@@ -17,6 +24,13 @@ class RiskAgent:
         self.tokenizer = None
         self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU if available
         self.is_ready = False
+        
+        # Data pipeline connections
+        self.risk_api = None
+        self.financial_db = None
+        self.compliance_db = None
+        self.market_news = None
+        self.dataset_loader = None
         
         # Configure 4-bit quantization for RTX 4050 (6GB VRAM) - Conservative settings
         if self.device == "cuda":
@@ -31,9 +45,23 @@ class RiskAgent:
             self.quant_config = None  # CPU doesn't need quantization
         
     async def initialize(self):
-        """Initialize the Risk Agent with GPU optimization"""
+        """Initialize the Risk Agent with comprehensive data pipeline connections"""
         try:
             logger.info(f"🛡️ Initializing Risk Agent with {self.model_name} on {self.device.upper()}")
+            
+            # Initialize all data pipeline connections for comprehensive risk assessment
+            logger.info("🔗 Connecting Risk Agent to all data sources...")
+            self.risk_api = RiskAPI()
+            self.financial_db = FinancialDB()
+            self.compliance_db = ComplianceDB()
+            self.market_news = MarketNews()
+            self.dataset_loader = DatasetLoader()
+            
+            await self.risk_api.initialize()
+            await self.financial_db.initialize()
+            await self.compliance_db.initialize()
+            await self.market_news.initialize()
+            await self.dataset_loader.initialize()
             
             # Load tokenizer
             self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
@@ -68,15 +96,41 @@ class RiskAgent:
             raise
     
     async def analyze(self, scenario: str) -> Dict[str, Any]:
-        """Analyze risks and mitigation strategies"""
+        """Analyze risks with comprehensive multi-source data"""
         if not self.is_ready:
             raise RuntimeError("Risk Agent not initialized")
         
         try:
-            # Create risk analysis prompt
+            # Gather comprehensive risk data from all sources
+            logger.info("🛡️ Conducting multi-dimensional risk assessment...")
+            
+            # Get fiscal and sovereign risk data
+            fiscal_risk = await self.risk_api.assess_fiscal_risk({'country': 'India', 'scenario': scenario})
+            
+            # Get compliance and regulatory risks
+            compliance_risk = await self.compliance_db.assess_compliance(scenario, 'India')
+            
+            # Get market volatility and performance risks
+            market_performance = await self.market_news.get_market_performance()
+            
+            # Get financial stability indicators
+            economic_indicators = await self.financial_db.get_economic_indicators()
+            
+            # Get government fiscal data for macroeconomic risk assessment
+            # 3. Get fiscal risk data
+            fiscal_data = await self.financial_db.analyze_expenditure_patterns()
+            
+            # Create enhanced risk analysis prompt with real data
             prompt = f"""
-            Risk Assessment for Business Scenario:
+            Comprehensive Risk Assessment for Business Scenario:
             {scenario}
+            
+            Real Risk Data Context:
+            - Sovereign Risk Score: {fiscal_risk.get('sovereign_risk_score', 'N/A')}
+            - Compliance Risk Score: {compliance_risk.get('overall_compliance_score', 'N/A')}
+            - Market Sentiment: {market_performance.get('sentiment', 'N/A')}
+            - Economic Stability: {economic_indicators.get('summary', 'Available')}
+            - Fiscal Health: {fiscal_data.get('summary', 'Available')}
             
             Identify and analyze the following risk categories:
             1. Financial risks (cash flow, funding, market volatility)
@@ -107,11 +161,18 @@ class RiskAgent:
             generated_text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
             analysis = generated_text[len(prompt):].strip()
             
-            # Structure the response
+            # Combine AI analysis with comprehensive real risk data
             result = {
                 "agent": "Risk",
                 "model": self.model_name,
                 "analysis": analysis,
+                "real_risk_data": {
+                    "fiscal_risk": fiscal_risk,
+                    "compliance_risk": compliance_risk,
+                    "market_performance": market_performance,
+                    "economic_indicators": economic_indicators,
+                    "fiscal_data": fiscal_data
+                },
                 "risk_categories": {
                     "financial_risk": self._assess_risk_level(analysis, "financial"),
                     "operational_risk": self._assess_risk_level(analysis, "operational"),
