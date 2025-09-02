@@ -40,8 +40,7 @@ export function Dashboard() {
   const completedDecisions = allDecisions.filter(d => d.status === 'completed');
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+    <div className="flex min-h-screen">
       {/* Main Content */}
       <div className="flex-1 flex flex-col">
         <Header
@@ -50,11 +49,11 @@ export function Dashboard() {
           ctaLabel="New Strategic Decision"
           onCtaClick={handleNewDecision}
         />
-        <div className="flex-1 overflow-auto p-6">
-          <div className="space-y-8">
+        <div className="flex-1 overflow-auto p-4 sm:p-6">
+          <div className="space-y-6">
             {/* KPI Cards */}
             <motion.div 
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, staggerChildren: 0.1 }}
@@ -71,66 +70,93 @@ export function Dashboard() {
               ))}
             </motion.div>
 
-            {/* Agent Performance Section - Clean Card Layout */}
-            <div className="">
-              <h2 className="text-xl font-bold text-black mb-6">Agent Performance</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                {agents.map((agent) => (
-                  <div key={agent.id} className="bg-white rounded-xl shadow p-6 flex flex-col items-start">
-                    <div className="flex items-center mb-2">
-                      <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center mr-3">
-                        {/* Icon */}
-                        {agent.icon === 'DollarSign' && <span className="text-green-500 text-xl">$</span>}
-                        {agent.icon === 'Shield' && <span className="text-blue-500 text-xl">🛡️</span>}
-                        {agent.icon === 'AlertTriangle' && <span className="text-yellow-500 text-xl">⚠️</span>}
-                        {agent.icon === 'TrendingUp' && <span className="text-purple-500 text-xl">📈</span>}
+            {/* Agent Performance Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <h2 className="text-xl font-bold text-black mb-4">Agent Performance</h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {agents.map((agent, index) => (
+                  <motion.div
+                    key={agent.id}
+                    className="glass-card hover-lift p-4 rounded-xl"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1 }}
+                  >
+                    <div className="flex items-center mb-3">
+                      <div className="w-10 h-10 glass rounded-lg flex items-center justify-center mr-3">
+                        {agent.icon === 'DollarSign' && <span className="text-green-500 text-lg">$</span>}
+                        {agent.icon === 'Shield' && <span className="text-blue-500 text-lg">🛡️</span>}
+                        {agent.icon === 'AlertTriangle' && <span className="text-yellow-500 text-lg">⚠️</span>}
+                        {agent.icon === 'TrendingUp' && <span className="text-purple-500 text-lg">📈</span>}
                       </div>
-                      <span className="font-semibold text-lg text-black mr-2">{agent.name}</span>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ml-auto ${agent.status === 'active' ? 'bg-green-100 text-green-700' : agent.status === 'analyzing' ? 'bg-yellow-100 text-yellow-700' : 'bg-gray-100 text-gray-500'}`}>{agent.status}</span>
+                      <div className="flex-1">
+                        <span className="font-semibold text-base text-black">{agent.name}</span>
+                        <span className={`ml-2 px-2 py-1 rounded-full text-xs font-medium ${
+                          agent.status === 'active' ? 'bg-green-100 text-green-700' : 
+                          agent.status === 'analyzing' ? 'bg-yellow-100 text-yellow-700' : 
+                          'bg-gray-100 text-gray-500'
+                        }`}>
+                          {agent.status}
+                        </span>
+                      </div>
                     </div>
-                    <p className="text-sm text-gray-500 mb-4">{agent.description}</p>
-                    <div className="flex items-center w-full mb-2">
-                      <span className="text-xs text-gray-500 mr-2">Performance</span>
-                      <span className="font-bold text-black text-sm">{agent.performance}%</span>
+                    <p className="text-sm text-gray-600 mb-3">{agent.description}</p>
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">Performance</span>
+                        <span className="font-bold text-black text-sm">{agent.performance}%</span>
+                      </div>
+                      <div className="w-full h-2 glass rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-green-400 to-green-600 transition-all duration-500 ease-out rounded-full" 
+                          style={{ width: `${agent.performance}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-500">Decisions Analyzed</span>
+                        <span className="font-bold text-black text-sm">{agent.decisionsAnalyzed}</span>
+                      </div>
                     </div>
-                    <div className="w-full h-2 bg-gray-200 rounded mb-2">
-                      <div className="h-2 rounded bg-green-500" style={{ width: `${agent.performance}%` }}></div>
-                    </div>
-                    <div className="flex items-center w-full">
-                      <span className="text-xs text-gray-500 mr-2">Decisions Analyzed</span>
-                      <span className="font-bold text-black text-sm">{agent.decisionsAnalyzed}</span>
-                    </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            {/* Strategic Decisions Section with Scroll */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card className="glass-card border-gray-600/20 max-h-[400px] overflow-y-auto">
-                <CardHeader>
-                  <CardTitle className="text-black flex items-center gap-2">
-                    <span className="text-yellow-500"><svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M12 2v2m0 16v2m8-10h2M2 12H4m15.07-7.07l1.42 1.42M4.93 19.07l1.42-1.42M19.07 19.07l-1.42-1.42M4.93 4.93l-1.42 1.42" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+            {/* Strategic Decisions Section */}
+            <motion.div
+              className="grid grid-cols-1 xl:grid-cols-2 gap-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+            >
+              <Card className="glass-card interactive-border hover-lift">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-black flex items-center gap-2 text-lg">
+                    <span className="text-yellow-500">⚡</span>
                     Active Strategic Decisions
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="max-h-80 overflow-y-auto">
                   <DecisionTable decisions={activeDecisions} />
                 </CardContent>
               </Card>
 
-              <Card className="glass-card border-gray-600/20 max-h-[400px] overflow-y-auto">
-                <CardHeader>
-                  <CardTitle className="text-black flex items-center gap-2">
-                    <span className="text-green-500"><svg width="24" height="24" fill="none" viewBox="0 0 24 24"><path d="M9 12l2 2l4-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+              <Card className="glass-card interactive-border hover-lift">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-black flex items-center gap-2 text-lg">
+                    <span className="text-green-500">✓</span>
                     Recent Completions
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="max-h-80 overflow-y-auto">
                   <DecisionTable decisions={completedDecisions} />
                 </CardContent>
               </Card>
-            </div>
+            </motion.div>
           </div>
         </div>
       </div>

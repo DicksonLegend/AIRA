@@ -28,10 +28,10 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
 
   const agents = [
-    { id: 'finance', name: 'Finance Agent' },
-    { id: 'risk', name: 'Risk Agent' },
-    { id: 'compliance', name: 'Compliance Agent' },
-    { id: 'market', name: 'Market Agent' },
+    { id: 'finance', name: 'Finance Agent', icon: '💰', description: 'Financial analysis and projections' },
+    { id: 'risk', name: 'Risk Agent', icon: '⚠️', description: 'Risk assessment and mitigation strategies' },
+    { id: 'compliance', name: 'Compliance Agent', icon: '⚖️', description: 'Regulatory compliance and legal considerations' },
+    { id: 'market', name: 'Market Agent', icon: '📈', description: 'Market analysis and competitive intelligence' },
   ];
 
   const handleAgentToggle = (agentId: string) => {
@@ -74,17 +74,17 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl bg-white">
+      <DialogContent className="glass-card max-w-2xl border-0 shadow-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-xl font-semibold text-black">
+            <DialogTitle className="text-2xl font-bold text-black">
               Create New Strategic Decision
             </DialogTitle>
             <Button
               variant="ghost"
               size="icon"
               onClick={onClose}
-              className="h-6 w-6 rounded-full"
+              className="glass-button hover:bg-gray-100/80 rounded-full"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -93,7 +93,7 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
         
         <div className="space-y-6 py-4">
           <div className="space-y-2">
-            <Label htmlFor="title" className="text-sm font-medium text-black">
+            <Label htmlFor="title" className="text-sm font-medium text-gray-700">
               Decision Title
             </Label>
             <Input
@@ -101,12 +101,12 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
               placeholder="e.g., Market Expansion into Asia-Pacific"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full"
+              className="glass-input focus-enhanced"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium text-black">
+            <Label htmlFor="description" className="text-sm font-medium text-gray-700">
               Description & Context
             </Label>
             <Textarea
@@ -114,27 +114,42 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
               placeholder="Provide detailed context, objectives, and constraints for this strategic decision..."
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full min-h-[100px] resize-none"
+              className="glass-input focus-enhanced min-h-[100px] resize-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-sm font-medium text-black">Priority Level</Label>
+              <Label className="text-sm font-medium text-gray-700">Priority Level</Label>
               <Select value={priority} onValueChange={(value: 'high' | 'medium' | 'low') => setPriority(value)}>
-                <SelectTrigger>
+                <SelectTrigger className="glass-input focus-enhanced">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="low">Low</SelectItem>
+                <SelectContent className="glass-card border-0 shadow-xl">
+                  <SelectItem value="high" className="hover:glass transition-all">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                      High Priority
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="medium" className="hover:glass transition-all">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                      Medium Priority
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="low" className="hover:glass transition-all">
+                    <span className="flex items-center gap-2">
+                      <span className="w-2 h-2 bg-green-500 rounded-full"></span>
+                      Low Priority
+                    </span>
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="deadline" className="text-sm font-medium text-black">
+              <Label htmlFor="deadline" className="text-sm font-medium text-gray-700">
                 Decision Deadline
               </Label>
               <Input
@@ -142,42 +157,47 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
                 type="date"
                 value={deadline}
                 onChange={(e) => setDeadline(e.target.value)}
-                className="w-full"
+                className="glass-input focus-enhanced"
               />
             </div>
           </div>
 
           <div className="space-y-3">
-            <Label className="text-sm font-medium text-black">AI Agents to Involve</Label>
-            <div className="grid grid-cols-2 gap-3">
+            <Label className="text-sm font-medium text-gray-700">AI Agents to Involve</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {agents.map((agent) => (
-                <div key={agent.id} className="flex items-center space-x-2">
-                  <Checkbox
-                    id={agent.id}
-                    checked={selectedAgents.includes(agent.id)}
-                    onCheckedChange={() => handleAgentToggle(agent.id)}
-                  />
-                  <Label htmlFor={agent.id} className="text-sm text-gray-700">
-                    {agent.name}
-                  </Label>
+                <div key={agent.id} className="glass p-3 rounded-lg hover:glass-card transition-all duration-300">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id={agent.id}
+                      checked={selectedAgents.includes(agent.id)}
+                      onCheckedChange={() => handleAgentToggle(agent.id)}
+                      className="border-gray-400 data-[state=checked]:bg-green-500 data-[state=checked]:border-green-500"
+                    />
+                    <Label htmlFor={agent.id} className="flex items-center space-x-2 cursor-pointer flex-1">
+                      <span className="text-lg">{agent.icon}</span>
+                      <span className="font-medium text-gray-800">{agent.name}</span>
+                    </Label>
+                  </div>
+                  <p className="text-sm text-gray-600 mt-2 ml-7">{agent.description}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4 border-t">
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200/50">
           <Button
             variant="outline"
             onClick={handleCancel}
-            className="px-6"
+            className="glass-button px-6 hover-lift"
           >
             Cancel
           </Button>
           <Button
             onClick={handleSubmit}
             disabled={!title.trim() || !description.trim() || selectedAgents.length === 0}
-            className="px-6 bg-green-600 hover:bg-green-700 text-white"
+            className="accent-button px-6 hover-lift"
           >
             Create Decision
           </Button>

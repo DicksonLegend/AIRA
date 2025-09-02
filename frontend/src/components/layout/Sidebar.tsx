@@ -42,8 +42,12 @@ export function Sidebar() {
       {/* Logo & Title */}
       <div className="p-6 border-b-2 border-white/10 flex-shrink-0">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105">
-            <span className="font-bold text-white text-lg">AI</span>
+          <div className="w-12 h-12 rounded-xl flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 overflow-hidden bg-white/10">
+            <img 
+              src="/Screenshot 2025-09-02 102251.png" 
+              alt="AIRA Logo" 
+              className="w-10 h-10 object-contain rounded-lg"
+            />
           </div>
           <div>
             <h1 className="font-bold text-xl text-white">AIRA</h1>
