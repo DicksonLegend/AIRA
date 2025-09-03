@@ -149,7 +149,7 @@ class ComplianceAgent:
                 },
                 "legal_framework_analysis": self._analyze_legal_frameworks(compliance_records),
                 "risk_assessment": self._assess_compliance_risks(compliance_scores),
-                "confidence": 0.92,  # Higher confidence with real data
+                "confidence": self._calculate_confidence(analysis, scenario, compliance_records, vector_results, regulatory_requirements),
                 "device": self.device
             }
             
@@ -519,6 +519,46 @@ Vector analysis of legal documents indicates {len([r for r in vector_results if 
         # Convert to compliance score (lower risk = higher compliance)
         compliance_score = 1.0 - weighted_average
         return round(max(compliance_score, 0.1), 2)
+    
+    def _calculate_confidence(self, analysis: str, scenario: str, compliance_records: List[Dict], vector_results: List[Dict], regulatory_requirements: List[str]) -> float:
+        """Calculate dynamic confidence score based on compliance analysis quality and data availability"""
+        confidence = 0.5  # Base confidence
+        
+        # Analysis quality factors
+        analysis_lower = analysis.lower()
+        
+        # Length and detail indicators
+        if len(analysis) > 600:
+            confidence += 0.1
+        if len(analysis) > 1200:
+            confidence += 0.1
+            
+        # Compliance assessment quality indicators
+        compliance_keywords = ["regulation", "compliance", "legal", "law", "requirement", "framework"]
+        compliance_count = sum(1 for keyword in compliance_keywords if keyword in analysis_lower)
+        confidence += min(compliance_count * 0.04, 0.15)
+        
+        # Data availability factors
+        if compliance_records and len(compliance_records) > 0:
+            confidence += 0.08
+        if vector_results and len(vector_results) > 0:
+            confidence += 0.08
+        if regulatory_requirements and len(regulatory_requirements) > 0:
+            confidence += 0.08
+            
+        # Scenario complexity factor
+        scenario_lower = scenario.lower()
+        if any(word in scenario_lower for word in ["international", "global", "cross-border"]):
+            confidence -= 0.05  # International scenarios have higher compliance complexity
+        if any(word in scenario_lower for word in ["local", "domestic", "single market"]):
+            confidence += 0.05  # Local scenarios have clearer compliance frameworks
+            
+        # Specific compliance terms that indicate thorough analysis
+        specific_terms = ["gdpr", "hipaa", "sox", "data protection", "privacy", "audit", "certification"]
+        specific_count = sum(1 for term in specific_terms if term in analysis_lower)
+        confidence += min(specific_count * 0.03, 0.12)
+        
+        return round(min(max(confidence, 0.4), 0.95), 2)
     
     def get_status(self) -> Dict[str, Any]:
         """Get agent status"""

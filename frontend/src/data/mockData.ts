@@ -1,6 +1,34 @@
-<<<<<<< HEAD
 import { KpiMetric, Agent, Decision, SystemHealth, DetailedAgentAnalysis } from '@/types';
 
+// Initial empty state for KPI metrics
+export const initialKpiMetrics: KpiMetric[] = [
+  {
+    title: 'Total Decisions',
+    value: '0',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'Avg Confidence',
+    value: '0%',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'Active Agents',
+    value: '4',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'System Health',
+    value: '0%',
+    change: '0%',
+    trend: 'neutral',
+  },
+];
+
+// Keep the old data for reference/fallback (you can remove this later)
 export const kpiMetrics: KpiMetric[] = [
   {
     title: 'Total Decisions',
@@ -26,15 +54,6 @@ export const kpiMetrics: KpiMetric[] = [
     change: '+2%',
     trend: 'up',
   },
-=======
-import { KpiMetric, Agent, Decision, SystemHealth } from '@/types';
-
-export const kpiMetrics: KpiMetric[] = [
-  { title: 'Total Decisions', value: '247', change: '+12%', trend: 'up' },
-  { title: 'Active Analysis', value: '18', change: '+5%', trend: 'up' },
-  { title: 'Completed', value: '229', change: '+8%', trend: 'up' },
-  { title: 'Avg Confidence', value: '94.2%', change: '+2.1%', trend: 'up' }
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 ];
 
 export const agents: Agent[] = [
@@ -45,11 +64,7 @@ export const agents: Agent[] = [
     icon: 'DollarSign',
     status: 'active',
     performance: 95,
-<<<<<<< HEAD
     decisionsAnalyzed: 64,
-=======
-    decisionsAnalyzed: 64
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'risk',
@@ -58,11 +73,7 @@ export const agents: Agent[] = [
     icon: 'Shield',
     status: 'analyzing',
     performance: 87,
-<<<<<<< HEAD
     decisionsAnalyzed: 42,
-=======
-    decisionsAnalyzed: 42
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'compliance',
@@ -71,18 +82,13 @@ export const agents: Agent[] = [
     icon: 'AlertTriangle',
     status: 'active',
     performance: 92,
-<<<<<<< HEAD
     decisionsAnalyzed: 38,
-=======
-    decisionsAnalyzed: 38
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'market',
     name: 'Market',
     description: 'Market analysis and competitive intelligence',
     icon: 'TrendingUp',
-<<<<<<< HEAD
     status: 'active',
     performance: 89,
     decisionsAnalyzed: 29,
@@ -169,24 +175,26 @@ export const decisions: Decision[] = [
     status: 'active',
     confidence: 92,
     createdAt: '1/15/2025',
-    agents: ['finance', 'risk', 'compliance'],
-=======
-    status: 'inactive',
-    performance: 89,
-    decisionsAnalyzed: 29
-  }
-];
-
-export const decisions: Decision[] = [
-  {
-    id: '1',
-    title: 'Q4 Budget Allocation Strategy',
-    priority: 'high',
-    status: 'active',
-    confidence: 92,
-    createdAt: '2025-01-15T10:30:00Z',
-    agents: ['finance', 'risk']
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 89,
+        recommendation: 'Consider market entry costs and revenue projections',
+        analysis: 'Initial investment analysis shows positive ROI potential'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 75,
+        recommendation: 'Evaluate regulatory and market risks',
+        analysis: 'Moderate risk level due to regional market conditions'
+      },
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 95,
+        recommendation: 'Ensure local business registration compliance',
+        analysis: 'Clear regulatory framework for foreign business entities'
+      }
+    ],
   },
   {
     id: '2',
@@ -194,13 +202,27 @@ export const decisions: Decision[] = [
     priority: 'medium',
     status: 'completed',
     confidence: 87,
-<<<<<<< HEAD
     createdAt: '1/14/2025',
-    agents: ['market', 'finance', 'risk'],
-=======
-    createdAt: '2025-01-14T14:20:00Z',
-    agents: ['market', 'finance']
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
+    agents: [
+      {
+        agent_name: 'Market Agent',
+        confidence: 90,
+        recommendation: 'Strong market opportunity identified',
+        analysis: 'Target demographic shows high demand for product category'
+      },
+      {
+        agent_name: 'Finance Agent',
+        confidence: 85,
+        recommendation: 'Positive financial outlook with moderate investment',
+        analysis: 'Cost-benefit analysis shows 18-month break-even period'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 82,
+        recommendation: 'Low to moderate risk assessment',
+        analysis: 'Competitive landscape manageable with differentiation strategy'
+      }
+    ],
   },
   {
     id: '3',
@@ -208,9 +230,21 @@ export const decisions: Decision[] = [
     priority: 'high',
     status: 'pending',
     confidence: 78,
-<<<<<<< HEAD
     createdAt: '1/13/2025',
-    agents: ['compliance', 'risk'],
+    agents: [
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 85,
+        recommendation: 'Update framework to meet new regulatory standards',
+        analysis: 'Current framework needs modernization for emerging regulations'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 70,
+        recommendation: 'Assess compliance risk exposure',
+        analysis: 'Non-compliance penalties could impact business operations'
+      }
+    ],
   },
   {
     id: '4',
@@ -219,7 +253,20 @@ export const decisions: Decision[] = [
     status: 'active',
     confidence: 85,
     createdAt: '1/12/2025',
-    agents: ['finance', 'market'],
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 88,
+        recommendation: 'Allocate budget for strategic technology upgrades',
+        analysis: 'ROI analysis shows positive returns on proposed tech investments'
+      },
+      {
+        agent_name: 'Market Agent',
+        confidence: 82,
+        recommendation: 'Technology aligns with market trends',
+        analysis: 'Competitive advantage through strategic technology adoption'
+      }
+    ],
   },
   {
     id: '5',
@@ -228,7 +275,20 @@ export const decisions: Decision[] = [
     status: 'completed',
     confidence: 91,
     createdAt: '1/11/2025',
-    agents: ['finance', 'compliance'],
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 93,
+        recommendation: 'Cost savings identified through process optimization',
+        analysis: 'Efficiency improvements show 15% cost reduction potential'
+      },
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 89,
+        recommendation: 'Process changes meet regulatory requirements',
+        analysis: 'New operational procedures comply with industry standards'
+      }
+    ],
   },
 ];
 
@@ -237,23 +297,10 @@ export const systemHealth: SystemHealth = {
   activeAgents: 3,
   processingPower: 87,
   systemLoad: 72,
-=======
-    createdAt: '2025-01-13T09:15:00Z',
-    agents: ['compliance', 'risk']
-  }
-];
-
-export const systemHealth: SystemHealth = {
-  overall: 96,
-  activeAgents: 3,
-  processingPower: 87,
-  systemLoad: 42
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 };
 
 export const chartData = {
   priorityDistribution: [
-<<<<<<< HEAD
     { name: 'High', value: 45, fill: '#ef4444' },
     { name: 'Medium', value: 78, fill: '#3b82f6' },
     { name: 'Low', value: 32, fill: '#6b7280' },
@@ -271,21 +318,4 @@ export const chartData = {
     { month: 'May', confidence: 94 },
     { month: 'Jun', confidence: 91 },
   ],
-=======
-    { name: 'High', value: 45, fill: '#EF4444' },
-    { name: 'Medium', value: 78, fill: '#F59E0B' },
-    { name: 'Low', value: 124, fill: '#10B981' }
-  ],
-  statusBreakdown: [
-    { name: 'Completed', value: 229, fill: '#10B981' },
-    { name: 'Active', value: 18, fill: '#3B82F6' },
-    { name: 'Pending', value: 12, fill: '#F59E0B' }
-  ],
-  confidenceOverTime: [
-    { month: 'Oct', confidence: 89 },
-    { month: 'Nov', confidence: 91 },
-    { month: 'Dec', confidence: 93 },
-    { month: 'Jan', confidence: 94 }
-  ]
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 };

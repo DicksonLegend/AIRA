@@ -179,7 +179,7 @@ class MarketAgent:
                 "economic_indicators_impact": market_insights["economic_impact"],
                 "market_trends": market_insights["trends"],
                 "overall_market_score": self._calculate_market_attractiveness_with_data(analysis, market_data, economic_data),
-                "confidence": 0.93,  # Higher confidence with real data
+                "confidence": self._calculate_confidence(analysis, scenario, market_data, economic_data),
                 "device": self.device
             }
             
@@ -680,6 +680,44 @@ class MarketAgent:
         
         final_score = base_score + data_adjustment
         return round(min(max(final_score, 0.1), 0.9), 2)
+    
+    def _calculate_confidence(self, analysis: str, scenario: str, market_data: List[Dict], economic_data: List[Dict]) -> float:
+        """Calculate dynamic confidence score based on market analysis quality and data availability"""
+        confidence = 0.5  # Base confidence
+        
+        # Analysis quality factors
+        analysis_lower = analysis.lower()
+        
+        # Length and detail indicators
+        if len(analysis) > 500:
+            confidence += 0.1
+        if len(analysis) > 1000:
+            confidence += 0.1
+            
+        # Market assessment quality indicators
+        market_keywords = ["market", "competition", "demand", "growth", "opportunity", "trend"]
+        market_count = sum(1 for keyword in market_keywords if keyword in analysis_lower)
+        confidence += min(market_count * 0.04, 0.15)
+        
+        # Data availability factors
+        if market_data and len(market_data) > 0:
+            confidence += 0.08
+        if economic_data and len(economic_data) > 0:
+            confidence += 0.08
+            
+        # Scenario complexity factor
+        scenario_lower = scenario.lower()
+        if any(word in scenario_lower for word in ["emerging", "new market", "disruptive"]):
+            confidence -= 0.05  # Emerging markets have higher uncertainty
+        if any(word in scenario_lower for word in ["established", "mature", "traditional"]):
+            confidence += 0.05  # Established markets have more data
+            
+        # Specific market terms that indicate thorough analysis
+        specific_terms = ["market share", "competitive advantage", "barriers to entry", "customer segmentation", "pricing strategy"]
+        specific_count = sum(1 for term in specific_terms if term in analysis_lower)
+        confidence += min(specific_count * 0.03, 0.12)
+        
+        return round(min(max(confidence, 0.35), 0.95), 2)
     
     def get_status(self) -> Dict[str, Any]:
         """Get agent status"""

@@ -15,7 +15,6 @@ export interface Agent {
   decisionsAnalyzed: number;
 }
 
-<<<<<<< HEAD
 export interface DetailedAgentAnalysis {
   id: string;
   name: string;
@@ -35,8 +34,6 @@ export interface DetailedAgentAnalysis {
   recommendation: string;
 }
 
-=======
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 export interface Decision {
   id: string;
   title: string;
@@ -44,7 +41,18 @@ export interface Decision {
   status: 'active' | 'completed' | 'pending';
   confidence: number;
   createdAt: string;
-  agents: string[];
+  agents: AgentAnalysis[];
+}
+
+export interface AgentAnalysis {
+  agent_name: string;
+  confidence: number;
+  recommendation: string;
+  analysis: string;
+  risk_level?: string;
+  financial_impact?: string;
+  compliance_status?: string;
+  market_sentiment?: string;
 }
 
 export interface SystemHealth {

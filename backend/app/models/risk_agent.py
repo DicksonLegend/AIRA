@@ -182,7 +182,7 @@ class RiskAgent:
                 },
                 "overall_risk_score": self._calculate_overall_risk(analysis),
                 "mitigation_priority": self._identify_priority_risks(analysis),
-                "confidence": 0.88,
+                "confidence": self._calculate_confidence(analysis, scenario, fiscal_risk, compliance_risk, market_performance),
                 "device": self.device
             }
             
@@ -247,6 +247,46 @@ class RiskAgent:
             priorities.append("Strategic Risk")
         
         return priorities[:3]  # Return top 3 priority risks
+    
+    def _calculate_confidence(self, analysis: str, scenario: str, fiscal_risk: Dict, compliance_risk: Dict, market_performance: Dict) -> float:
+        """Calculate dynamic confidence score based on risk analysis quality and data availability"""
+        confidence = 0.5  # Base confidence
+        
+        # Analysis quality factors
+        analysis_lower = analysis.lower()
+        
+        # Length and detail indicators
+        if len(analysis) > 400:
+            confidence += 0.1
+        if len(analysis) > 800:
+            confidence += 0.1
+            
+        # Risk assessment quality indicators
+        risk_keywords = ["risk", "threat", "vulnerability", "exposure", "mitigation", "control"]
+        risk_count = sum(1 for keyword in risk_keywords if keyword in analysis_lower)
+        confidence += min(risk_count * 0.04, 0.15)
+        
+        # Data availability factors
+        if fiscal_risk and len(fiscal_risk) > 0:
+            confidence += 0.08
+        if compliance_risk and len(compliance_risk) > 0:
+            confidence += 0.08
+        if market_performance and len(market_performance) > 0:
+            confidence += 0.08
+            
+        # Scenario complexity factor
+        scenario_lower = scenario.lower()
+        if any(word in scenario_lower for word in ["startup", "new", "venture", "launch"]):
+            confidence -= 0.05  # New ventures have higher uncertainty
+        if any(word in scenario_lower for word in ["established", "mature", "large scale"]):
+            confidence += 0.05  # Established businesses have more predictable risks
+            
+        # Specific risk terms that indicate thorough analysis
+        specific_terms = ["sovereign risk", "operational risk", "market risk", "credit risk", "liquidity risk"]
+        specific_count = sum(1 for term in specific_terms if term in analysis_lower)
+        confidence += min(specific_count * 0.03, 0.12)
+        
+        return round(min(max(confidence, 0.35), 0.92), 2)
     
     def get_status(self) -> Dict[str, Any]:
         """Get agent status"""
