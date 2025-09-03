@@ -11,43 +11,26 @@ export function KpiCard({ metric }: KpiCardProps) {
   const getTrendIcon = () => {
     switch (metric.trend) {
       case 'up':
-<<<<<<< HEAD
         return <TrendingUp className="w-5 h-5 text-green-500" />;
       case 'down':
         return <TrendingDown className="w-5 h-5 text-red-500" />;
       default:
         return <Minus className="w-5 h-5 text-slate-400" />;
-=======
-        return <TrendingUp className="w-4 h-4 text-green-600" />;
-      case 'down':
-        return <TrendingDown className="w-4 h-4 text-red-600" />;
-      default:
-        return <Minus className="w-4 h-4 text-gray-400" />;
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
     }
   };
 
   const getTrendColor = () => {
     switch (metric.trend) {
       case 'up':
-<<<<<<< HEAD
         return 'text-green-500';
       case 'down':
         return 'text-red-500';
       default:
         return 'text-slate-400';
-=======
-        return 'text-green-600';
-      case 'down':
-        return 'text-red-600';
-      default:
-        return 'text-gray-400';
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
     }
   };
 
   return (
-<<<<<<< HEAD
     <Card className="glass-card hover-lift interactive-border cursor-pointer group">
       <CardContent className="p-6">
         <div className="flex items-center justify-between mb-3">
@@ -62,20 +45,6 @@ export function KpiCard({ metric }: KpiCardProps) {
             {metric.change}
           </span>
           <span className="text-sm text-gray-500 ml-2 group-hover:text-gray-600 transition-colors">vs last month</span>
-=======
-    <Card className="hover:shadow-md transition-shadow">
-      <CardContent className="p-6">
-        <div className="flex items-center justify-between mb-2">
-          <p className="text-sm font-medium text-gray-600">{metric.title}</p>
-          {getTrendIcon()}
-        </div>
-        <p className="text-3xl font-bold text-gray-900">{metric.value}</p>
-        <div className="flex items-center mt-2">
-          <span className={`text-sm font-medium ${getTrendColor()}`}>
-            {metric.change}
-          </span>
-          <span className="text-sm text-gray-500 ml-1">vs last month</span>
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
         </div>
       </CardContent>
     </Card>

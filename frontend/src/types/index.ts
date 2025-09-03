@@ -15,7 +15,6 @@ export interface Agent {
   decisionsAnalyzed: number;
 }
 
-<<<<<<< HEAD
 export interface DetailedAgentAnalysis {
   id: string;
   name: string;
@@ -35,8 +34,6 @@ export interface DetailedAgentAnalysis {
   recommendation: string;
 }
 
-=======
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 export interface Decision {
   id: string;
   title: string;

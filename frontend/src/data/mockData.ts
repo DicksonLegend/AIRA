@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { KpiMetric, Agent, Decision, SystemHealth, DetailedAgentAnalysis } from '@/types';
 
 export const kpiMetrics: KpiMetric[] = [
@@ -26,15 +25,6 @@ export const kpiMetrics: KpiMetric[] = [
     change: '+2%',
     trend: 'up',
   },
-=======
-import { KpiMetric, Agent, Decision, SystemHealth } from '@/types';
-
-export const kpiMetrics: KpiMetric[] = [
-  { title: 'Total Decisions', value: '247', change: '+12%', trend: 'up' },
-  { title: 'Active Analysis', value: '18', change: '+5%', trend: 'up' },
-  { title: 'Completed', value: '229', change: '+8%', trend: 'up' },
-  { title: 'Avg Confidence', value: '94.2%', change: '+2.1%', trend: 'up' }
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 ];
 
 export const agents: Agent[] = [
@@ -45,11 +35,7 @@ export const agents: Agent[] = [
     icon: 'DollarSign',
     status: 'active',
     performance: 95,
-<<<<<<< HEAD
     decisionsAnalyzed: 64,
-=======
-    decisionsAnalyzed: 64
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'risk',
@@ -58,11 +44,7 @@ export const agents: Agent[] = [
     icon: 'Shield',
     status: 'analyzing',
     performance: 87,
-<<<<<<< HEAD
     decisionsAnalyzed: 42,
-=======
-    decisionsAnalyzed: 42
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'compliance',
@@ -71,18 +53,13 @@ export const agents: Agent[] = [
     icon: 'AlertTriangle',
     status: 'active',
     performance: 92,
-<<<<<<< HEAD
     decisionsAnalyzed: 38,
-=======
-    decisionsAnalyzed: 38
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: 'market',
     name: 'Market',
     description: 'Market analysis and competitive intelligence',
     icon: 'TrendingUp',
-<<<<<<< HEAD
     status: 'active',
     performance: 89,
     decisionsAnalyzed: 29,
@@ -170,23 +147,6 @@ export const decisions: Decision[] = [
     confidence: 92,
     createdAt: '1/15/2025',
     agents: ['finance', 'risk', 'compliance'],
-=======
-    status: 'inactive',
-    performance: 89,
-    decisionsAnalyzed: 29
-  }
-];
-
-export const decisions: Decision[] = [
-  {
-    id: '1',
-    title: 'Q4 Budget Allocation Strategy',
-    priority: 'high',
-    status: 'active',
-    confidence: 92,
-    createdAt: '2025-01-15T10:30:00Z',
-    agents: ['finance', 'risk']
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: '2',
@@ -194,13 +154,8 @@ export const decisions: Decision[] = [
     priority: 'medium',
     status: 'completed',
     confidence: 87,
-<<<<<<< HEAD
     createdAt: '1/14/2025',
     agents: ['market', 'finance', 'risk'],
-=======
-    createdAt: '2025-01-14T14:20:00Z',
-    agents: ['market', 'finance']
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
   },
   {
     id: '3',
@@ -208,7 +163,6 @@ export const decisions: Decision[] = [
     priority: 'high',
     status: 'pending',
     confidence: 78,
-<<<<<<< HEAD
     createdAt: '1/13/2025',
     agents: ['compliance', 'risk'],
   },
@@ -237,23 +191,10 @@ export const systemHealth: SystemHealth = {
   activeAgents: 3,
   processingPower: 87,
   systemLoad: 72,
-=======
-    createdAt: '2025-01-13T09:15:00Z',
-    agents: ['compliance', 'risk']
-  }
-];
-
-export const systemHealth: SystemHealth = {
-  overall: 96,
-  activeAgents: 3,
-  processingPower: 87,
-  systemLoad: 42
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 };
 
 export const chartData = {
   priorityDistribution: [
-<<<<<<< HEAD
     { name: 'High', value: 45, fill: '#ef4444' },
     { name: 'Medium', value: 78, fill: '#3b82f6' },
     { name: 'Low', value: 32, fill: '#6b7280' },
@@ -271,21 +212,4 @@ export const chartData = {
     { month: 'May', confidence: 94 },
     { month: 'Jun', confidence: 91 },
   ],
-=======
-    { name: 'High', value: 45, fill: '#EF4444' },
-    { name: 'Medium', value: 78, fill: '#F59E0B' },
-    { name: 'Low', value: 124, fill: '#10B981' }
-  ],
-  statusBreakdown: [
-    { name: 'Completed', value: 229, fill: '#10B981' },
-    { name: 'Active', value: 18, fill: '#3B82F6' },
-    { name: 'Pending', value: 12, fill: '#F59E0B' }
-  ],
-  confidenceOverTime: [
-    { month: 'Oct', confidence: 89 },
-    { month: 'Nov', confidence: 91 },
-    { month: 'Dec', confidence: 93 },
-    { month: 'Jan', confidence: 94 }
-  ]
->>>>>>> 50ae69f853291638d6f1f4c49baa7d4614cabe5a
 };
