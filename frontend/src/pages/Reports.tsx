@@ -26,10 +26,10 @@ const confidenceData = [
 
 export default function Reports() {
   return (
-    <div className="flex-1 flex flex-col">
+    <div className="flex-1 flex flex-col h-full">
       {/* Header */}
       <motion.div 
-        className="flex items-center justify-between p-4 sm:p-6 glass-card border-b-2 border-white/20"
+        className="flex items-center justify-between p-4 sm:p-6 glass-card border-b-2 border-white/20 flex-shrink-0"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6 }}
@@ -50,22 +50,22 @@ export default function Reports() {
         </div>
       </motion.div>
 
-      <div className="flex-1 overflow-auto p-4 sm:p-6">
+      <div className="flex-1 overflow-y-auto p-4 sm:p-6 min-h-0">
         {/* KPI Cards */}
         <motion.div 
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-4 sm:mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2, duration: 0.6, staggerChildren: 0.1 }}
         >
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Card className="glass-card hover-lift interactive-border">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">TOTAL DECISIONS</p>
-                    <p className="text-3xl font-bold text-black mt-2">7</p>
-                    <p className="text-sm text-green-600 mt-1 flex items-center">
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">TOTAL DECISIONS</p>
+                    <p className="text-2xl font-bold text-black mt-1">7</p>
+                    <p className="text-xs text-green-600 mt-1 flex items-center">
                       <span className="mr-1">↗</span>
                       Active ecosystem
                     </p>
@@ -77,12 +77,12 @@ export default function Reports() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
             <Card className="glass-card hover-lift interactive-border">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">AVG CONFIDENCE</p>
-                    <p className="text-3xl font-bold text-black mt-2">35%</p>
-                    <p className="text-sm text-gray-600 mt-1">AI recommendation accuracy</p>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">AVG CONFIDENCE</p>
+                    <p className="text-2xl font-bold text-black mt-1">35%</p>
+                    <p className="text-xs text-gray-600 mt-1">AI recommendation accuracy</p>
                   </div>
                 </div>
               </CardContent>
@@ -91,12 +91,12 @@ export default function Reports() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
             <Card className="glass-card hover-lift interactive-border">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-600 uppercase tracking-wide">COMPLETED</p>
-                    <p className="text-3xl font-bold text-black mt-2">0</p>
-                    <p className="text-sm text-green-600 mt-1">Successfully implemented</p>
+                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">COMPLETED</p>
+                    <p className="text-2xl font-bold text-black mt-1">0</p>
+                    <p className="text-xs text-green-600 mt-1">Successfully implemented</p>
                   </div>
                 </div>
               </CardContent>
@@ -105,12 +105,12 @@ export default function Reports() {
 
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
             <Card className="glass-dark hover-lift interactive-border text-white">
-              <CardContent className="p-4 sm:p-6">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm font-medium text-gray-300 uppercase tracking-wide">THIS MONTH</p>
-                    <p className="text-3xl font-bold text-white mt-2">7</p>
-                    <p className="text-sm text-yellow-400 mt-1">New decisions</p>
+                    <p className="text-xs font-medium text-gray-300 uppercase tracking-wide">THIS MONTH</p>
+                    <p className="text-2xl font-bold text-white mt-1">7</p>
+                    <p className="text-xs text-yellow-400 mt-1">New decisions</p>
                   </div>
                 </div>
               </CardContent>
@@ -120,22 +120,22 @@ export default function Reports() {
 
         {/* Charts Row */}
         <motion.div 
-          className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
+          className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.6 }}
         >
           {/* Priority Distribution */}
           <Card className="glass-card hover-lift interactive-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-black text-lg sm:text-xl">Decision Priority Distribution</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-black text-base sm:text-lg">Decision Priority Distribution</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={180}>
                 <BarChart data={priorityData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="name" fontSize={12} stroke="#6b7280" />
-                  <YAxis fontSize={12} stroke="#6b7280" />
+                  <XAxis dataKey="name" fontSize={11} stroke="#6b7280" />
+                  <YAxis fontSize={11} stroke="#6b7280" />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.95)', 
@@ -152,11 +152,11 @@ export default function Reports() {
 
           {/* Status Breakdown */}
           <Card className="glass-card hover-lift interactive-border">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-black text-lg sm:text-xl">Decision Status Breakdown</CardTitle>
+            <CardHeader className="pb-2">
+              <CardTitle className="text-black text-base sm:text-lg">Decision Status Breakdown</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+              <ResponsiveContainer width="100%" height={180}>
                 <PieChart>
                   <Pie
                     data={statusData}
@@ -164,7 +164,7 @@ export default function Reports() {
                     cy="50%"
                     labelLine={false}
                     label={({ name }) => name}
-                    outerRadius={80}
+                    outerRadius={70}
                     fill="#8884d8"
                     dataKey="count"
                   >
@@ -182,8 +182,8 @@ export default function Reports() {
                   />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="mt-4 text-center">
-                <p className="text-sm text-yellow-600 font-medium">Recommendations Ready: 5</p>
+              <div className="mt-3 text-center">
+                <p className="text-xs text-yellow-600 font-medium">Recommendations Ready: 5</p>
               </div>
             </CardContent>
           </Card>
@@ -195,16 +195,16 @@ export default function Reports() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.6 }}
         >
-          <Card className="glass-card hover-lift interactive-border mb-6 sm:mb-8">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-black text-lg sm:text-xl">AI Confidence Score Analysis</CardTitle>
+          <Card className="glass-card hover-lift interactive-border mb-4 sm:mb-6">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-black text-base sm:text-lg">AI Confidence Score Analysis</CardTitle>
             </CardHeader>
             <CardContent>
-              <ResponsiveContainer width="100%" height={200}>
+              <ResponsiveContainer width="100%" height={160}>
                 <LineChart data={confidenceData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="decision" fontSize={12} stroke="#6b7280" />
-                  <YAxis domain={[0, 100]} fontSize={12} stroke="#6b7280" />
+                  <XAxis dataKey="decision" fontSize={11} stroke="#6b7280" />
+                  <YAxis domain={[0, 100]} fontSize={11} stroke="#6b7280" />
                   <Tooltip 
                     contentStyle={{ 
                       backgroundColor: 'rgba(255, 255, 255, 0.95)', 
@@ -217,9 +217,9 @@ export default function Reports() {
                     type="monotone" 
                     dataKey="confidence" 
                     stroke="#10b981" 
-                    strokeWidth={3}
-                    dot={{ fill: '#10b981', strokeWidth: 2, r: 6 }}
-                    activeDot={{ r: 8, stroke: '#10b981', strokeWidth: 2 }}
+                    strokeWidth={2}
+                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                    activeDot={{ r: 6, stroke: '#10b981', strokeWidth: 2 }}
                   />
                 </LineChart>
               </ResponsiveContainer>
@@ -234,8 +234,8 @@ export default function Reports() {
           transition={{ delay: 1.1, duration: 0.6 }}
         >
           <Card className="glass-card hover-lift interactive-border">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-black text-lg sm:text-xl flex items-center gap-2">
+            <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-black text-base sm:text-lg flex items-center gap-2">
                 <span>📋</span>
                 Recent Strategic Decisions
               </CardTitle>
@@ -245,11 +245,11 @@ export default function Reports() {
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200/50">
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Decision</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Priority</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Status</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Confidence</th>
-                      <th className="text-left py-3 px-4 font-medium text-gray-700 text-sm">Date</th>
+                      <th className="text-left py-2 px-3 font-medium text-gray-700 text-xs">Decision</th>
+                      <th className="text-left py-2 px-3 font-medium text-gray-700 text-xs">Priority</th>
+                      <th className="text-left py-2 px-3 font-medium text-gray-700 text-xs">Status</th>
+                      <th className="text-left py-2 px-3 font-medium text-gray-700 text-xs">Confidence</th>
+                      <th className="text-left py-2 px-3 font-medium text-gray-700 text-xs">Date</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -259,23 +259,23 @@ export default function Reports() {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 1.2 }}
                     >
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <div>
-                          <p className="font-medium text-black text-sm">expansion to europe</p>
+                          <p className="font-medium text-black text-xs">expansion to europe</p>
                           <p className="text-xs text-gray-500">expansion to europe</p>
                         </div>
                       </td>
-                      <td className="py-3 px-4">
+                      <td className="py-2 px-3">
                         <Badge className="glass bg-red-100 text-red-700 border-red-200 text-xs">critical</Badge>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="text-gray-600 text-sm">analyzing</span>
+                      <td className="py-2 px-3">
+                        <span className="text-gray-600 text-xs">analyzing</span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="text-gray-600 text-sm">N/A</span>
+                      <td className="py-2 px-3">
+                        <span className="text-gray-600 text-xs">N/A</span>
                       </td>
-                      <td className="py-3 px-4">
-                        <span className="text-gray-600 text-sm">Sep 1, 2025</span>
+                      <td className="py-2 px-3">
+                        <span className="text-gray-600 text-xs">Sep 1, 2025</span>
                       </td>
                     </motion.tr>
                     {decisions.slice(1).map((decision, index) => (
@@ -286,12 +286,12 @@ export default function Reports() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: 1.3 + index * 0.1 }}
                       >
-                        <td className="py-3 px-4">
+                        <td className="py-2 px-3">
                           <div>
-                            <p className="font-medium text-black text-sm">{decision.title}</p>
+                            <p className="font-medium text-black text-xs">{decision.title}</p>
                           </div>
                         </td>
-                        <td className="py-3 px-4">
+                        <td className="py-2 px-3">
                           <Badge className={`glass text-xs ${
                             decision.priority === 'high' ? 'bg-red-100 text-red-700 border-red-200' :
                             decision.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' :
@@ -300,14 +300,14 @@ export default function Reports() {
                             {decision.priority}
                           </Badge>
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="text-gray-600 text-sm">{decision.status}</span>
+                        <td className="py-2 px-3">
+                          <span className="text-gray-600 text-xs">{decision.status}</span>
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="text-gray-600 text-sm">{decision.confidence}%</span>
+                        <td className="py-2 px-3">
+                          <span className="text-gray-600 text-xs">{decision.confidence}%</span>
                         </td>
-                        <td className="py-3 px-4">
-                          <span className="text-gray-600 text-sm">{decision.createdAt}</span>
+                        <td className="py-2 px-3">
+                          <span className="text-gray-600 text-xs">{decision.createdAt}</span>
                         </td>
                       </motion.tr>
                     ))}
