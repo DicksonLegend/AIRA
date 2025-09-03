@@ -504,5 +504,3 @@ This project is licensed under the MIT License. See [LICENSE](../LICENSE) file f
 ---
 
 **🚀 Ready to revolutionize business intelligence with direct AI model implementation!**
-
-*Built with ❤️ using PyTorch and Transformers*
