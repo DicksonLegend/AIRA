@@ -1,4 +1,3 @@
-import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { KpiMetric } from '@/types';

@@ -5,7 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Loader2, X, AlertCircle } from 'lucide-react';
+import { useAnalysis } from '@/hooks/useAnalysis';
 
 interface CreateDecisionModalProps {
   isOpen: boolean;
@@ -16,6 +18,7 @@ interface CreateDecisionModalProps {
     priority: 'high' | 'medium' | 'low';
     deadline: string;
     agents: string[];
+    analysisResult?: any;
   }) => void;
 }
 
@@ -25,6 +28,7 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
   const [priority, setPriority] = useState<'high' | 'medium' | 'low'>('medium');
   const [deadline, setDeadline] = useState('');
   const [selectedAgents, setSelectedAgents] = useState<string[]>([]);
+  const { loading, error, analyzeScenario } = useAnalysis();
 
   const agents = [
     { id: 'finance', name: 'Finance Agent', icon: '💰', description: 'Financial analysis and projections' },
@@ -41,23 +45,36 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
     );
   };
 
-  const handleSubmit = () => {
-    if (title.trim() && description.trim() && selectedAgents.length > 0) {
-      onCreateDecision({
-        title: title.trim(),
-        description: description.trim(),
-        priority,
-        deadline,
-        agents: selectedAgents,
-      });
-      
-      // Reset form
-      setTitle('');
-      setDescription('');
-      setPriority('medium');
-      setDeadline('');
-      setSelectedAgents([]);
-      onClose();
+  const handleSubmit = async () => {
+    if (title.trim() && description.trim()) {
+      try {
+        // Create the scenario text combining title and description
+        const scenario = `${title.trim()}: ${description.trim()}`;
+        
+        // Run AI analysis using the backend
+        const analysisResult = await analyzeScenario(scenario, 'comprehensive');
+        
+        // Create decision with analysis result
+        onCreateDecision({
+          title: title.trim(),
+          description: description.trim(),
+          priority,
+          deadline,
+          agents: selectedAgents.length > 0 ? selectedAgents : ['finance', 'risk', 'compliance', 'market'],
+          analysisResult,
+        });
+        
+        // Reset form
+        setTitle('');
+        setDescription('');
+        setPriority('medium');
+        setDeadline('');
+        setSelectedAgents([]);
+        onClose();
+      } catch (error) {
+        // Error is handled by the hook, UI will show the error
+        console.error('Failed to analyze scenario:', error);
+      }
     }
   };
 
@@ -197,20 +214,33 @@ export function CreateDecisionModal({ isOpen, onClose, onCreateDecision }: Creat
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-gray-200/20">
+            {error && (
+              <div className="mb-4">
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertCircle className="h-4 w-4 text-red-600" />
+                  <AlertDescription className="text-red-700">
+                    {error}
+                  </AlertDescription>
+                </Alert>
+              </div>
+            )}
+            
             <div className="flex justify-end space-x-3">
               <Button
                 variant="outline"
                 onClick={handleCancel}
+                disabled={loading}
                 className="glass-button px-6 transition-colors duration-200 hover:bg-gray-100/80"
               >
                 Cancel
               </Button>
               <Button
                 onClick={handleSubmit}
-                disabled={!title.trim() || !description.trim() || selectedAgents.length === 0}
-                className="accent-button px-6 transition-colors duration-200 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={loading || !title.trim() || !description.trim()}
+                className="accent-button px-6 transition-colors duration-200 hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
-                Create Decision
+                {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+                {loading ? 'Analyzing...' : 'Create & Analyze'}
               </Button>
             </div>
           </div>

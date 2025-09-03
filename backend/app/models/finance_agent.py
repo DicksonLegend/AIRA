@@ -172,7 +172,7 @@ class FinanceAgent:
                     "roi_projection": self._extract_score(analysis, "roi"),
                     "funding_requirement": self._extract_score(analysis, "funding")
                 },
-                "confidence": 0.85,
+                "confidence": self._calculate_confidence(analysis, scenario, financial_ratios, market_impact),
                 "device": self.device
             }
             
@@ -204,6 +204,44 @@ class FinanceAgent:
                 return max(0.3 - (negative_count * 0.05), 0.1)
         
         return 0.5  # Neutral score
+    
+    def _calculate_confidence(self, analysis: str, scenario: str, financial_ratios: Dict, market_impact: Dict) -> float:
+        """Calculate dynamic confidence score based on analysis quality and data availability"""
+        confidence = 0.5  # Base confidence
+        
+        # Analysis quality factors
+        analysis_lower = analysis.lower()
+        
+        # Length and detail indicators
+        if len(analysis) > 500:
+            confidence += 0.1
+        if len(analysis) > 1000:
+            confidence += 0.1
+            
+        # Content quality indicators
+        quality_keywords = ["revenue", "cost", "profit", "funding", "investment", "roi", "break-even"]
+        quality_count = sum(1 for keyword in quality_keywords if keyword in analysis_lower)
+        confidence += min(quality_count * 0.05, 0.2)
+        
+        # Data availability factors
+        if financial_ratios and len(financial_ratios) > 0:
+            confidence += 0.1
+        if market_impact and len(market_impact) > 0:
+            confidence += 0.1
+            
+        # Scenario complexity factor
+        scenario_lower = scenario.lower()
+        if any(word in scenario_lower for word in ["startup", "new venture", "launch"]):
+            confidence -= 0.05  # New ventures have higher uncertainty
+        if any(word in scenario_lower for word in ["expansion", "growth", "scale"]):
+            confidence += 0.05  # Established businesses have more data
+            
+        # Specific financial terms that indicate thorough analysis
+        specific_terms = ["cash flow", "balance sheet", "income statement", "valuation", "dcf"]
+        specific_count = sum(1 for term in specific_terms if term in analysis_lower)
+        confidence += min(specific_count * 0.03, 0.15)
+        
+        return round(min(max(confidence, 0.3), 0.95), 2)
     
     def get_status(self) -> Dict[str, Any]:
         """Get agent status"""

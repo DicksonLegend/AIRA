@@ -1,5 +1,34 @@
 import { KpiMetric, Agent, Decision, SystemHealth, DetailedAgentAnalysis } from '@/types';
 
+// Initial empty state for KPI metrics
+export const initialKpiMetrics: KpiMetric[] = [
+  {
+    title: 'Total Decisions',
+    value: '0',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'Avg Confidence',
+    value: '0%',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'Active Agents',
+    value: '4',
+    change: '0%',
+    trend: 'neutral',
+  },
+  {
+    title: 'System Health',
+    value: '0%',
+    change: '0%',
+    trend: 'neutral',
+  },
+];
+
+// Keep the old data for reference/fallback (you can remove this later)
 export const kpiMetrics: KpiMetric[] = [
   {
     title: 'Total Decisions',
@@ -146,7 +175,26 @@ export const decisions: Decision[] = [
     status: 'active',
     confidence: 92,
     createdAt: '1/15/2025',
-    agents: ['finance', 'risk', 'compliance'],
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 89,
+        recommendation: 'Consider market entry costs and revenue projections',
+        analysis: 'Initial investment analysis shows positive ROI potential'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 75,
+        recommendation: 'Evaluate regulatory and market risks',
+        analysis: 'Moderate risk level due to regional market conditions'
+      },
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 95,
+        recommendation: 'Ensure local business registration compliance',
+        analysis: 'Clear regulatory framework for foreign business entities'
+      }
+    ],
   },
   {
     id: '2',
@@ -155,7 +203,26 @@ export const decisions: Decision[] = [
     status: 'completed',
     confidence: 87,
     createdAt: '1/14/2025',
-    agents: ['market', 'finance', 'risk'],
+    agents: [
+      {
+        agent_name: 'Market Agent',
+        confidence: 90,
+        recommendation: 'Strong market opportunity identified',
+        analysis: 'Target demographic shows high demand for product category'
+      },
+      {
+        agent_name: 'Finance Agent',
+        confidence: 85,
+        recommendation: 'Positive financial outlook with moderate investment',
+        analysis: 'Cost-benefit analysis shows 18-month break-even period'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 82,
+        recommendation: 'Low to moderate risk assessment',
+        analysis: 'Competitive landscape manageable with differentiation strategy'
+      }
+    ],
   },
   {
     id: '3',
@@ -164,7 +231,20 @@ export const decisions: Decision[] = [
     status: 'pending',
     confidence: 78,
     createdAt: '1/13/2025',
-    agents: ['compliance', 'risk'],
+    agents: [
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 85,
+        recommendation: 'Update framework to meet new regulatory standards',
+        analysis: 'Current framework needs modernization for emerging regulations'
+      },
+      {
+        agent_name: 'Risk Agent',
+        confidence: 70,
+        recommendation: 'Assess compliance risk exposure',
+        analysis: 'Non-compliance penalties could impact business operations'
+      }
+    ],
   },
   {
     id: '4',
@@ -173,7 +253,20 @@ export const decisions: Decision[] = [
     status: 'active',
     confidence: 85,
     createdAt: '1/12/2025',
-    agents: ['finance', 'market'],
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 88,
+        recommendation: 'Allocate budget for strategic technology upgrades',
+        analysis: 'ROI analysis shows positive returns on proposed tech investments'
+      },
+      {
+        agent_name: 'Market Agent',
+        confidence: 82,
+        recommendation: 'Technology aligns with market trends',
+        analysis: 'Competitive advantage through strategic technology adoption'
+      }
+    ],
   },
   {
     id: '5',
@@ -182,7 +275,20 @@ export const decisions: Decision[] = [
     status: 'completed',
     confidence: 91,
     createdAt: '1/11/2025',
-    agents: ['finance', 'compliance'],
+    agents: [
+      {
+        agent_name: 'Finance Agent',
+        confidence: 93,
+        recommendation: 'Cost savings identified through process optimization',
+        analysis: 'Efficiency improvements show 15% cost reduction potential'
+      },
+      {
+        agent_name: 'Compliance Agent',
+        confidence: 89,
+        recommendation: 'Process changes meet regulatory requirements',
+        analysis: 'New operational procedures comply with industry standards'
+      }
+    ],
   },
 ];
 

@@ -12,7 +12,7 @@ import {
   User
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { agents } from '@/data/mockData';
+import { useAgents } from '@/contexts/AgentContext';
 
 const navigation = [
   { name: 'Executive Dashboard', href: '/dashboard', icon: LayoutDashboard },
@@ -36,6 +36,7 @@ const statusColors = {
 
 export function Sidebar() {
   const location = useLocation();
+  const { agents } = useAgents();
 
   return (
     <div className="w-64 glass-dark h-screen flex flex-col border-r-2 border-white/10 overflow-hidden">

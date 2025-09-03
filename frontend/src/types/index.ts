@@ -41,7 +41,18 @@ export interface Decision {
   status: 'active' | 'completed' | 'pending';
   confidence: number;
   createdAt: string;
-  agents: string[];
+  agents: AgentAnalysis[];
+}
+
+export interface AgentAnalysis {
+  agent_name: string;
+  confidence: number;
+  recommendation: string;
+  analysis: string;
+  risk_level?: string;
+  financial_impact?: string;
+  compliance_status?: string;
+  market_sentiment?: string;
 }
 
 export interface SystemHealth {
