@@ -21,9 +21,13 @@ export function Dashboard() {
   
   const { agents, completedAnalyses } = useAgents();
 
-  // Load persisted data on component mount
+  // Load persisted data on component mount - after AgentContext has loaded
   useEffect(() => {
-    loadPersistedData();
+    // Small delay to ensure AgentContext data is loaded first
+    const timer = setTimeout(() => {
+      loadPersistedData();
+    }, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Save data to localStorage whenever it changes
@@ -31,14 +35,23 @@ export function Dashboard() {
     saveDataToLocalStorage();
   }, [allDecisions, totalAnalysisCount, totalConfidence]);
 
-  // Update KPI metrics when real analyses are completed
+  // Update KPI metrics when real analyses are completed (primary source of truth)
   useEffect(() => {
     updateKpiMetricsFromRealData();
   }, [completedAnalyses, agents]);
 
+  // Secondary effect to sync with persisted data after AgentContext loads
+  useEffect(() => {
+    if (completedAnalyses.length > 0 || agents.some(a => a.status === 'active')) {
+      console.log('📊 Syncing Dashboard with AgentContext data');
+      updateKpiMetricsFromRealData();
+    }
+  }, [completedAnalyses.length, agents]);
+
   // Load persisted data from localStorage
   const loadPersistedData = () => {
     try {
+      console.log('📊 Loading Dashboard persisted data...');
       const savedDecisions = localStorage.getItem('aira_dashboard_decisions');
       const savedAnalysisCount = localStorage.getItem('aira_dashboard_analysis_count');
       const savedConfidence = localStorage.getItem('aira_dashboard_total_confidence');
@@ -47,17 +60,30 @@ export function Dashboard() {
         const decisions = JSON.parse(savedDecisions);
         setAllDecisions(decisions);
         console.log(`📊 Loaded ${decisions.length} decisions from localStorage`);
+      } else {
+        console.log('📊 No saved decisions found');
       }
 
       if (savedAnalysisCount) {
-        setTotalAnalysisCount(parseInt(savedAnalysisCount));
+        const count = parseInt(savedAnalysisCount);
+        setTotalAnalysisCount(count);
+        console.log(`📊 Loaded analysis count: ${count}`);
       }
 
       if (savedConfidence) {
-        setTotalConfidence(parseInt(savedConfidence));
+        const confidence = parseInt(savedConfidence);
+        setTotalConfidence(confidence);
+        console.log(`📊 Loaded total confidence: ${confidence}`);
       }
 
       console.log('✅ Dashboard data restored from localStorage');
+      
+      // Immediately sync with AgentContext if data is available
+      setTimeout(() => {
+        console.log('📊 Post-load sync with AgentContext');
+        updateKpiMetricsFromRealData();
+      }, 200);
+      
     } catch (error) {
       console.warn('⚠️ Failed to load persisted dashboard data:', error);
     }
@@ -76,6 +102,10 @@ export function Dashboard() {
 
   // Function to update KPI metrics from real Four Pillars AI analysis data
   const updateKpiMetricsFromRealData = () => {
+    console.log('📊 Updating KPI metrics from real data...');
+    console.log('Completed analyses:', completedAnalyses.length);
+    console.log('Agents:', agents.map(a => ({ id: a.id, status: a.status, score: a.performanceScore })));
+    
     const totalAnalyses = completedAnalyses.length;
     
     // Calculate real average confidence from completed analyses
@@ -102,19 +132,19 @@ export function Dashboard() {
       {
         title: 'Total Analyses',
         value: totalAnalyses.toString(),
-        change: totalAnalyses > totalAnalysisCount ? `+${totalAnalyses - totalAnalysisCount}` : '0',
-        trend: totalAnalyses > totalAnalysisCount ? 'up' : 'neutral',
+        change: totalAnalyses > totalAnalysisCount ? `+${totalAnalyses - totalAnalysisCount}` : totalAnalyses > 0 ? 'real data' : '0',
+        trend: totalAnalyses > totalAnalysisCount ? 'up' : totalAnalyses > 0 ? 'up' : 'neutral',
       },
       {
         title: 'Avg Confidence',
         value: `${avgConfidence}%`,
-        change: avgConfidence > totalConfidence ? `+${avgConfidence - totalConfidence}%` : '0%',
-        trend: avgConfidence > totalConfidence ? 'up' : 'neutral',
+        change: avgConfidence > totalConfidence ? `+${avgConfidence - totalConfidence}%` : avgConfidence > 0 ? 'AI-powered' : '0%',
+        trend: avgConfidence > totalConfidence ? 'up' : avgConfidence > 0 ? 'up' : 'neutral',
       },
       {
         title: 'Active Agents',
         value: activeAgentCount.toString(),
-        change: analyzingAgentCount > 0 ? `${analyzingAgentCount} analyzing` : 'ready',
+        change: analyzingAgentCount > 0 ? `${analyzingAgentCount} analyzing` : activeAgentCount > 0 ? 'active' : 'ready',
         trend: activeAgentCount > 0 ? 'up' : 'neutral',
       },
       {
@@ -125,6 +155,7 @@ export function Dashboard() {
       },
     ];
     
+    console.log('📊 New KPI metrics:', realMetrics);
     setCurrentKpiMetrics(realMetrics);
     setTotalAnalysisCount(totalAnalyses);
     setTotalConfidence(avgConfidence);
@@ -173,6 +204,8 @@ export function Dashboard() {
     agents: string[];
     analysisResult?: any;
   }) => {
+    console.log('🎯 Creating new decision:', newDecision);
+    
     const decision: Decision = {
       id: String(allDecisions.length + 1),
       title: newDecision.title,
@@ -181,11 +214,16 @@ export function Dashboard() {
       confidence: newDecision.analysisResult ? 
         Math.round(newDecision.analysisResult.summary?.confidence || newDecision.analysisResult.overall_confidence || 85) : 
         Math.floor(Math.random() * 20) + 75, // Fallback to random if no analysis
-      createdAt: new Date().toLocaleDateString(),
+      createdAt: new Date().toISOString(), // Use ISO string for better date handling
       agents: newDecision.analysisResult?.agents || [], // Use real analysis data or empty array
     };
 
+    console.log('🎯 Created decision object:', decision);
+    
     const updatedDecisions = [decision, ...allDecisions];
+    console.log('🎯 All decisions after update:', updatedDecisions);
+    console.log('🎯 Total decisions count:', updatedDecisions.length);
+    
     setAllDecisions(updatedDecisions);
     updateKpiMetrics(updatedDecisions);
     
@@ -193,11 +231,19 @@ export function Dashboard() {
     setIsModalOpen(false);
     
     // Show success message or redirect to analysis view
-    console.log('New decision created with analysis:', newDecision.analysisResult);
+    console.log('✅ New decision created with analysis:', newDecision.analysisResult);
   };
 
   const activeDecisions = allDecisions.filter(d => d.status === 'active');
   const completedDecisions = allDecisions.filter(d => d.status === 'completed');
+
+  // Debug logging for decisions
+  console.log('📊 Dashboard state:', {
+    allDecisionsCount: allDecisions.length,
+    activeDecisionsCount: activeDecisions.length,
+    completedDecisionsCount: completedDecisions.length,
+    allDecisions: allDecisions
+  });
 
   return (
     <div className="flex min-h-screen">
@@ -412,7 +458,7 @@ export function Dashboard() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-black flex items-center gap-2 text-lg">
                       <span className="text-yellow-500">⚡</span>
-                      Active Strategic Decisions
+                      Active Strategic Decisions ({activeDecisions.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="max-h-80 overflow-y-auto">
@@ -424,7 +470,7 @@ export function Dashboard() {
                   <CardHeader className="pb-3">
                     <CardTitle className="text-black flex items-center gap-2 text-lg">
                       <span className="text-green-500">✓</span>
-                      Recent Completions
+                      Recent Completions ({completedDecisions.length})
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="max-h-80 overflow-y-auto">

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,27 @@ export default function Workspace() {
   const [searchTerm, setSearchTerm] = useState('');
   const { agents, latestAnalysisData } = useAgents();
   const navigate = useNavigate();
+
+  // Load persisted search term on mount
+  useEffect(() => {
+    try {
+      const savedSearchTerm = localStorage.getItem('aira_workspace_search_term');
+      if (savedSearchTerm) {
+        setSearchTerm(savedSearchTerm);
+      }
+    } catch (error) {
+      console.warn('⚠️ Failed to load workspace search term:', error);
+    }
+  }, []);
+
+  // Save search term whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('aira_workspace_search_term', searchTerm);
+    } catch (error) {
+      console.warn('⚠️ Failed to save workspace search term:', error);
+    }
+  }, [searchTerm]);
 
   const handleNavigateToDashboard = () => {
     navigate('/dashboard');
