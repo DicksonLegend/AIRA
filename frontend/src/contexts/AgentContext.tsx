@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
 export interface AgentStatus {
   id: string;
@@ -22,12 +22,14 @@ export interface AgentAnalysisData {
 interface AgentContextType {
   agents: AgentStatus[];
   latestAnalysisData: Record<string, AgentAnalysisData>;
+  completedAnalyses: any[]; // Store complete AnalysisResponse objects
   updateAgentStatus: (agentId: string, status: 'active' | 'analyzing' | 'inactive') => void;
   updateAgentPerformance: (agentId: string, score: number) => void;
   incrementAgentUsage: (agentId: string) => void;
   resetAllAgents: () => void;
   testAgentUpdates: () => void;
   setAnalysisData: (agentId: string, data: AgentAnalysisData) => void;
+  addCompletedAnalysis: (analysis: any) => void; // Add complete analysis result
 }
 
 const AgentContext = createContext<AgentContextType | undefined>(undefined);
@@ -67,6 +69,59 @@ const initialAgents: AgentStatus[] = [
 export function AgentProvider({ children }: { children: ReactNode }) {
   const [agents, setAgents] = useState<AgentStatus[]>(initialAgents);
   const [latestAnalysisData, setLatestAnalysisData] = useState<Record<string, AgentAnalysisData>>({});
+  const [completedAnalyses, setCompletedAnalyses] = useState<any[]>([]);
+
+  // Load persisted data on mount
+  useEffect(() => {
+    loadPersistedAgentData();
+  }, []);
+
+  // Save agent data whenever it changes
+  useEffect(() => {
+    saveAgentDataToLocalStorage();
+  }, [agents, completedAnalyses, latestAnalysisData]);
+
+  // Load persisted agent data from localStorage
+  const loadPersistedAgentData = () => {
+    try {
+      const savedAgents = localStorage.getItem('aira_agent_status');
+      const savedAnalyses = localStorage.getItem('aira_completed_analyses');
+      const savedAnalysisData = localStorage.getItem('aira_latest_analysis_data');
+
+      if (savedAgents) {
+        const agentData = JSON.parse(savedAgents);
+        setAgents(agentData);
+        console.log('📊 Loaded agent status from localStorage');
+      }
+
+      if (savedAnalyses) {
+        const analysesData = JSON.parse(savedAnalyses);
+        setCompletedAnalyses(analysesData);
+        console.log(`📊 Loaded ${analysesData.length} completed analyses from localStorage`);
+      }
+
+      if (savedAnalysisData) {
+        const analysisData = JSON.parse(savedAnalysisData);
+        setLatestAnalysisData(analysisData);
+        console.log('📊 Loaded latest analysis data from localStorage');
+      }
+
+      console.log('✅ Agent data restored from localStorage');
+    } catch (error) {
+      console.warn('⚠️ Failed to load persisted agent data:', error);
+    }
+  };
+
+  // Save agent data to localStorage
+  const saveAgentDataToLocalStorage = () => {
+    try {
+      localStorage.setItem('aira_agent_status', JSON.stringify(agents));
+      localStorage.setItem('aira_completed_analyses', JSON.stringify(completedAnalyses));
+      localStorage.setItem('aira_latest_analysis_data', JSON.stringify(latestAnalysisData));
+    } catch (error) {
+      console.warn('⚠️ Failed to save agent data to localStorage:', error);
+    }
+  };
 
   const updateAgentStatus = (agentId: string, status: 'active' | 'analyzing' | 'inactive') => {
     console.log(`AgentContext: Updating agent ${agentId} to status ${status}`);
@@ -107,9 +162,29 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     }));
   };
 
+  const addCompletedAnalysis = (analysis: any) => {
+    console.log('AgentContext: Adding completed analysis for Reports', analysis);
+    setCompletedAnalyses(prev => [analysis, ...prev.slice(0, 99)]); // Keep last 100 analyses
+  };
+
   const resetAllAgents = () => {
     setAgents(initialAgents);
     setLatestAnalysisData({});
+    setCompletedAnalyses([]);
+    
+    // Clear localStorage as well
+    try {
+      localStorage.removeItem('aira_agent_status');
+      localStorage.removeItem('aira_completed_analyses');
+      localStorage.removeItem('aira_latest_analysis_data');
+      localStorage.removeItem('aira_dashboard_decisions');
+      localStorage.removeItem('aira_dashboard_analysis_count');
+      localStorage.removeItem('aira_dashboard_total_confidence');
+      localStorage.removeItem('aira_analysis_history'); // Reports service data
+      console.log('🗑️ Cleared all persisted data from localStorage');
+    } catch (error) {
+      console.warn('⚠️ Failed to clear localStorage:', error);
+    }
   };
 
   // Test function to verify UI updates work
@@ -128,12 +203,14 @@ export function AgentProvider({ children }: { children: ReactNode }) {
     <AgentContext.Provider value={{
       agents,
       latestAnalysisData,
+      completedAnalyses,
       updateAgentStatus,
       updateAgentPerformance,
       incrementAgentUsage,
       resetAllAgents,
       testAgentUpdates,
-      setAnalysisData
+      setAnalysisData,
+      addCompletedAnalysis
     }}>
       {children}
     </AgentContext.Provider>

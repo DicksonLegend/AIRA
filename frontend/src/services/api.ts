@@ -144,6 +144,43 @@ class APIService {
       throw error;
     }
   }
+
+  // Get analysis history
+  async getAnalysisHistory(limit?: number): Promise<any> {
+    try {
+      const url = limit ? `${this.baseURL}/history?limit=${limit}` : `${this.baseURL}/history`;
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get analysis history: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to get examples:', error);
+      throw error;
+    }
+  }
+
+  // WebSocket connection for real-time analysis updates
+
+  // Clear analysis history
+  async clearAnalysisHistory(): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseURL}/history`, {
+        method: 'DELETE'
+      });
+      
+      if (!response.ok) {
+        throw new Error(`Failed to clear analysis history: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Failed to clear analysis history:', error);
+      throw error;
+    }
+  }
 }
 
 // Export singleton instance

@@ -15,7 +15,7 @@ export function useAnalysis() {
     error: null,
   });
   
-  const { updateAgentStatus, updateAgentPerformance, incrementAgentUsage, setAnalysisData } = useAgents();
+  const { updateAgentStatus, updateAgentPerformance, incrementAgentUsage, setAnalysisData, addCompletedAnalysis } = useAgents();
 
   const analyzeScenario = useCallback(async (scenario: string, analysisFocus?: string) => {
     setState(prev => ({ ...prev, loading: true, error: null }));
@@ -124,6 +124,10 @@ export function useAnalysis() {
       } else {
         console.warn('⚠️ No agents to process');
       }
+      
+      // Store complete analysis result for Reports page
+      addCompletedAnalysis(result);
+      console.log('📊 Added completed analysis to AgentContext for Reports');
       
       setState({
         data: result,

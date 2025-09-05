@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Header } from '@/components/layout/Header';
 import { KpiCard } from '@/components/ui/KpiCard';
@@ -8,9 +8,9 @@ import { SystemStatus } from '@/components/SystemStatus';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, DollarSign, Shield, AlertTriangle } from 'lucide-react';
-import { initialKpiMetrics } from '@/data/mockData';
 import { Decision, KpiMetric } from '@/types';
 import { useAgents } from '@/contexts/AgentContext';
+import { initialKpiMetrics } from '@/data/mockData';
 
 export function Dashboard() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,25 +19,91 @@ export function Dashboard() {
   const [totalAnalysisCount, setTotalAnalysisCount] = useState(0);
   const [totalConfidence, setTotalConfidence] = useState(0);
   
-  const { agents } = useAgents();
+  const { agents, completedAnalyses } = useAgents();
 
-  const handleNewDecision = () => {
-    setIsModalOpen(true);
+  // Load persisted data on component mount
+  useEffect(() => {
+    loadPersistedData();
+  }, []);
+
+  // Save data to localStorage whenever it changes
+  useEffect(() => {
+    saveDataToLocalStorage();
+  }, [allDecisions, totalAnalysisCount, totalConfidence]);
+
+  // Update KPI metrics when real analyses are completed
+  useEffect(() => {
+    updateKpiMetricsFromRealData();
+  }, [completedAnalyses, agents]);
+
+  // Load persisted data from localStorage
+  const loadPersistedData = () => {
+    try {
+      const savedDecisions = localStorage.getItem('aira_dashboard_decisions');
+      const savedAnalysisCount = localStorage.getItem('aira_dashboard_analysis_count');
+      const savedConfidence = localStorage.getItem('aira_dashboard_total_confidence');
+
+      if (savedDecisions) {
+        const decisions = JSON.parse(savedDecisions);
+        setAllDecisions(decisions);
+        console.log(`📊 Loaded ${decisions.length} decisions from localStorage`);
+      }
+
+      if (savedAnalysisCount) {
+        setTotalAnalysisCount(parseInt(savedAnalysisCount));
+      }
+
+      if (savedConfidence) {
+        setTotalConfidence(parseInt(savedConfidence));
+      }
+
+      console.log('✅ Dashboard data restored from localStorage');
+    } catch (error) {
+      console.warn('⚠️ Failed to load persisted dashboard data:', error);
+    }
   };
 
-  // Function to update KPI metrics when new decisions are added
-  const updateKpiMetrics = (decisions: Decision[]) => {
-    const totalDecisions = decisions.length;
-    const avgConfidence = decisions.length > 0 
-      ? Math.round(decisions.reduce((sum, d) => sum + d.confidence, 0) / decisions.length)
+  // Save data to localStorage
+  const saveDataToLocalStorage = () => {
+    try {
+      localStorage.setItem('aira_dashboard_decisions', JSON.stringify(allDecisions));
+      localStorage.setItem('aira_dashboard_analysis_count', totalAnalysisCount.toString());
+      localStorage.setItem('aira_dashboard_total_confidence', totalConfidence.toString());
+    } catch (error) {
+      console.warn('⚠️ Failed to save dashboard data to localStorage:', error);
+    }
+  };
+
+  // Function to update KPI metrics from real Four Pillars AI analysis data
+  const updateKpiMetricsFromRealData = () => {
+    const totalAnalyses = completedAnalyses.length;
+    
+    // Calculate real average confidence from completed analyses
+    const avgConfidence = totalAnalyses > 0 
+      ? Math.round(completedAnalyses.reduce((sum, analysis) => {
+          // Extract confidence from real analysis data
+          const confidence = analysis.overall_confidence || 
+                           analysis.summary?.confidence || 
+                           (analysis.performance_metrics?.overall_confidence * 100) || 
+                           85; // fallback
+          return sum + confidence;
+        }, 0) / totalAnalyses)
       : 0;
     
-    const updatedMetrics: KpiMetric[] = [
+    // Count active agents from real agent status
+    const activeAgentCount = agents.filter(agent => agent.status === 'active').length;
+    const analyzingAgentCount = agents.filter(agent => agent.status === 'analyzing').length;
+    
+    // Calculate system health based on real activity
+    const systemHealth = totalAnalyses > 0 ? Math.min(95, 60 + (totalAnalyses * 5) + (activeAgentCount * 10)) : 0;
+    
+    // Create real metrics from actual analysis data
+    const realMetrics: KpiMetric[] = [
       {
-        title: 'Total Decisions',
-        value: totalDecisions.toString(),
-        change: totalDecisions > totalAnalysisCount ? `+${totalDecisions - totalAnalysisCount}` : '0',
-        trend: totalDecisions > totalAnalysisCount ? 'up' : 'neutral',
+        title: 'Total Analyses',
+        value: totalAnalyses.toString(),
+        change: totalAnalyses > totalAnalysisCount ? `+${totalAnalyses - totalAnalysisCount}` : '0',
+        trend: totalAnalyses > totalAnalysisCount ? 'up' : 'neutral',
       },
       {
         title: 'Avg Confidence',
@@ -47,21 +113,56 @@ export function Dashboard() {
       },
       {
         title: 'Active Agents',
-        value: agents.filter(agent => agent.status === 'active').length.toString(),
-        change: '0%',
-        trend: 'neutral',
+        value: activeAgentCount.toString(),
+        change: analyzingAgentCount > 0 ? `${analyzingAgentCount} analyzing` : 'ready',
+        trend: activeAgentCount > 0 ? 'up' : 'neutral',
       },
       {
         title: 'System Health',
-        value: totalDecisions > 0 ? '95%' : '0%',
-        change: totalDecisions > 0 ? '+2%' : '0%',
-        trend: totalDecisions > 0 ? 'up' : 'neutral',
+        value: `${systemHealth}%`,
+        change: totalAnalyses > 0 ? 'AI-powered' : 'ready',
+        trend: systemHealth > 80 ? 'up' : totalAnalyses > 0 ? 'neutral' : 'neutral',
       },
     ];
     
-    setCurrentKpiMetrics(updatedMetrics);
-    setTotalAnalysisCount(totalDecisions);
+    setCurrentKpiMetrics(realMetrics);
+    setTotalAnalysisCount(totalAnalyses);
     setTotalConfidence(avgConfidence);
+  };
+
+  const handleNewDecision = () => {
+    setIsModalOpen(true);
+  };
+
+  // Clear all persisted data (for testing/debugging)
+  const clearAllPersistedData = () => {
+    try {
+      localStorage.removeItem('aira_dashboard_decisions');
+      localStorage.removeItem('aira_dashboard_analysis_count');
+      localStorage.removeItem('aira_dashboard_total_confidence');
+      
+      setAllDecisions([]);
+      setTotalAnalysisCount(0);
+      setTotalConfidence(0);
+      setCurrentKpiMetrics(initialKpiMetrics);
+      
+      console.log('🗑️ Cleared all Dashboard persisted data');
+    } catch (error) {
+      console.warn('⚠️ Failed to clear persisted data:', error);
+    }
+  };
+
+  // Make clear function available globally for debugging
+  useEffect(() => {
+    (window as any).clearDashboardData = clearAllPersistedData;
+    console.log('🔧 Dashboard data persistence enabled. Use window.clearDashboardData() to reset.');
+  }, []);
+
+  // Legacy function to update KPI metrics when local decisions are added (still needed for decision creation)
+  const updateKpiMetrics = (_decisions: Decision[]) => {
+    // This will trigger updateKpiMetricsFromRealData through the useEffect
+    // when analyses complete, so we just update real metrics directly
+    updateKpiMetricsFromRealData();
   };
 
   const handleCreateDecision = (newDecision: {

@@ -19,7 +19,14 @@ class ComplianceAgent:
         self.model_name = "nlpaueb/legal-bert-base-uncased"
         self.model = None
         self.tokenizer = None
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"  # Use GPU for small model
+        
+        # Device configuration from environment variables
+        import os
+        self.device = os.getenv('COMPLIANCE_DEVICE', 'cuda' if torch.cuda.is_available() else 'cpu')
+        
+        # Local cache directory configuration
+        self.cache_dir = os.path.join(os.path.dirname(__file__), '..', '..', 'models')
+        
         self.is_ready = False
         
         # Data pipeline connections
@@ -39,41 +46,83 @@ class ComplianceAgent:
             await self.compliance_db.initialize()
             await self.vector_store.initialize()
             
-            # Load tokenizer with local cache preference
-            self.tokenizer = AutoTokenizer.from_pretrained(
-                self.model_name,
-                local_files_only=False,  # Allow fallback to cache
-                force_download=False,    # Use cache if available
-                cache_dir=None          # Use default cache location
-            )
-            
-            # Load Legal-BERT model with GPU/CPU optimization
-            if self.device == "cuda":
-                # GPU configuration - small BERT model with conservative limits for RTX 4050
-                self.model = AutoModel.from_pretrained(
+            # Load tokenizer with local cache - handle offline mode gracefully
+            try:
+                self.tokenizer = AutoTokenizer.from_pretrained(
                     self.model_name,
-                    torch_dtype=torch.float16,
-                    device_map="auto",  # Let transformers handle allocation
-                    use_safetensors=True,
-                    trust_remote_code=True,
-                    max_memory={0: "400MB", "cpu": "2GB"},  # Very conservative + CPU fallback
+                    cache_dir=self.cache_dir,
+                    local_files_only=True,  # Try offline first
+                    force_download=False
+                )
+            except OSError:
+                # If offline fails, try with download fallback (for start_optimized.py)
+                logger.warning("⚠️ Tokenizer not found offline, attempting download...")
+                self.tokenizer = AutoTokenizer.from_pretrained(
+                    self.model_name,
+                    cache_dir=self.cache_dir,
                     local_files_only=False,
                     force_download=False
                 )
+            
+            # Load Legal-BERT model with GPU/CPU optimization
+            try:
+                if self.device == "cuda":
+                    # GPU configuration - try offline first
+                    self.model = AutoModel.from_pretrained(
+                        self.model_name,
+                        cache_dir=self.cache_dir,
+                        torch_dtype=torch.float16,
+                        device_map="auto",
+                        use_safetensors=True,
+                        trust_remote_code=True,
+                        max_memory={0: "400MB", "cpu": "2GB"},
+                        local_files_only=True,
+                        force_download=False
+                    )
+                else:
+                    # CPU configuration - try offline first
+                    self.model = AutoModel.from_pretrained(
+                        self.model_name,
+                        cache_dir=self.cache_dir,
+                        torch_dtype=torch.float32,
+                        device_map={"": "cpu"},
+                        use_safetensors=True,
+                        trust_remote_code=True,
+                        low_cpu_mem_usage=True,
+                        local_files_only=True,
+                        force_download=False
+                    )
+            except OSError as e:
+                # If offline fails, try with download fallback (for start_optimized.py)
+                logger.warning(f"⚠️ Model not found offline, attempting download: {e}")
+                if self.device == "cuda":
+                    self.model = AutoModel.from_pretrained(
+                        self.model_name,
+                        cache_dir=self.cache_dir,
+                        torch_dtype=torch.float16,
+                        device_map="auto",
+                        use_safetensors=True,
+                        trust_remote_code=True,
+                        max_memory={0: "400MB", "cpu": "2GB"},
+                        local_files_only=False,
+                        force_download=False
+                    )
+                else:
+                    self.model = AutoModel.from_pretrained(
+                        self.model_name,
+                        cache_dir=self.cache_dir,
+                        torch_dtype=torch.float32,
+                        device_map={"": "cpu"},
+                        use_safetensors=True,
+                        trust_remote_code=True,
+                        low_cpu_mem_usage=True,
+                        local_files_only=False,
+                        force_download=False
+                    )
                 logger.info(f"✅ Compliance Agent ready on {self.device.upper()} - Legal-BERT (~0.3GB VRAM)")
             else:
-                # CPU configuration with memory limits
-                self.model = AutoModel.from_pretrained(
-                    self.model_name,
-                    torch_dtype=torch.float32,  # Use float32 for CPU stability
-                    device_map={"": "cpu"},  # Force CPU device mapping
-                    use_safetensors=True,
-                    trust_remote_code=True,
-                    low_cpu_mem_usage=True,
-                    local_files_only=False,  # Allow fallback to cache
-                    force_download=False     # Use cache if available
-                )
                 logger.info(f"✅ Compliance Agent ready on {self.device.upper()} - Legal-BERT (~0.4GB RAM)")
+
             
             self.is_ready = True  # Set ready flag after successful initialization
             
